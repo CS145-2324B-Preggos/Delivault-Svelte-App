@@ -1,0 +1,13 @@
+{
+    "name": "DeliVault App by Preggos", 
+    "short_name": "DeliVault",
+    "start_url": "/",
+    "display": "standalone", 
+    "background_color": "#ffffff",
+    "theme_color": "#ffffff",
+    "icons": [ 
+        {
+            
+        }
+    ]
+}
