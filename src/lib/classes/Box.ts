@@ -1,4 +1,5 @@
-
+import { insertBoxDB, selectBoxDB, updateBoxDB, deleteBoxDB } from "$lib/server/BoxSB";
+import type { SupabaseClient } from "@supabase/supabase-js"; 
 // parameters for insertion and update
 export type BoxDBObj = {
     box_id: number;
@@ -23,9 +24,9 @@ export class Box {
         filter: BoxFilter = {
             box_id: 0,
             user_id: 0
-        }
+        }, supabase: SupabaseClient
     ): Promise<BoxResponse> {
-        return selectBoxDB(filter);
+        return selectBoxDB(filter, supabase);
     }
     
 }
