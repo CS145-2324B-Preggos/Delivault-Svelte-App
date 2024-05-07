@@ -10,23 +10,27 @@
 	// Auth event listener for Supabase
 	import { goto, invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
+	import AppHeaderAuthComponent from '$lib/components/AppHeaderAuthComponent.svelte';
 
 	export let data;
 	$: ({ session, supabase } = data);
 
 	onMount(() => {
-		const { data } = supabase.auth.onAuthStateChange((_, newSession) => {
-			if (!newSession) {
-				/**
-				 * Queue this as a task so the navigation won't prevent the
-				 * triggering function from completing
-				 */
-				setTimeout(() => {
-					goto('/', { invalidateAll: true });
-				});
-			}
-			if (newSession?.expires_at !== session?.expires_at) {
-				invalidate('supabase:auth');
+		const { data } = supabase.auth.onAuthStateChange((event, newSession) => {
+			// don't do anything with the INITIAL_SESSION
+			if (event !== 'INITIAL_SESSION'){ 
+				if (!newSession) {
+					/**
+					 * Queue this as a task so the navigation won't prevent the
+					 * triggering function from completing
+					 */
+					setTimeout(() => {
+						goto('/', { invalidateAll: true });
+					});
+				}
+				if (newSession?.expires_at !== session?.expires_at) {
+					invalidate('supabase:auth');
+				}
 			}
 		});
 
@@ -44,30 +48,7 @@
 				<strong class="text-xl uppercase">Skeleton</strong>
 			</svelte:fragment>
 			<svelte:fragment slot="trail">
-				<a
-					class="btn btn-sm variant-ghost-surface"
-					href="https://discord.gg/EXqV7W8MtY"
-					target="_blank"
-					rel="noreferrer"
-				>
-					Discord
-				</a>
-				<a
-					class="btn btn-sm variant-ghost-surface"
-					href="https://twitter.com/SkeletonUI"
-					target="_blank"
-					rel="noreferrer"
-				>
-					Twitter
-				</a>
-				<a
-					class="btn btn-sm variant-ghost-surface"
-					href="https://github.com/skeletonlabs/skeleton"
-					target="_blank"
-					rel="noreferrer"
-				>
-					GitHub
-				</a>
+				<AppHeaderAuthComponent supabase={supabase}/>
 			</svelte:fragment>
 		</AppBar>
 	</svelte:fragment>
