@@ -13,4 +13,26 @@ export async function selectBoxDB(filter: BoxFilter, supabase: SupabaseClient): 
     if (filter.user_id != null) {
         query = query.eq('box_id',filter.box_id);
     }
+
+    // execute query
+    const { data, error } = await query;
+
+    // error catch
+    if (error){
+        return {
+            success: false,
+            boxRawObjs: null,
+            error: error.message
+        };
+    }
+
+    // format query into BoxDBObj
+
+    const formattedData: BoxDBObj[] = [];
+
+    if (data != null) {
+        for (const row of data){
+            
+        }
+    }
 }
