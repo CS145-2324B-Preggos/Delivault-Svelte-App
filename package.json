@@ -43,6 +43,7 @@
     "@floating-ui/dom": "1.6.4",
     "@supabase/ssr": "^0.3.0",
     "@supabase/supabase-js": "^2.43.0",
+    "mqtt": "^5.5.5",
     "valibot": "^0.30.0"
   }
 }
