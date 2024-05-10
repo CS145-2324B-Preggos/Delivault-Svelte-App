@@ -39,7 +39,7 @@ export class User {
         return updateUserDB(user, supabase);
     }
 
-    public static async deleteUser(user: UserDBObj, supabase: SupabaseClient): Promise<BoxReUserResponsesponse> {
+    public static async deleteUser(user: UserDBObj, supabase: SupabaseClient): Promise<UserResponse> {
         return deleteUserDB(user.user_id, supabase);
     }
     
