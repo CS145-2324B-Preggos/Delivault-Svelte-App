@@ -18,7 +18,7 @@ export async function selectBoxDB(filter: BoxFilter, supabase: SupabaseClient): 
     }
 
     if (filter.user_id != null) {
-        query = query.eq('box_id',filter.box_id);
+        query = query.eq('user_id',filter.user_id);
     }
 
     // execute query
