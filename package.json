@@ -45,5 +45,6 @@
     "@supabase/supabase-js": "^2.43.0",
     "valibot": "^0.30.0",
     "vitest": "^1.6.0"
+    "mqtt": "^5.5.5",
   }
 }

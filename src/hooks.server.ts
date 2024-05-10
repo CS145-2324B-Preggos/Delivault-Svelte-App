@@ -1,8 +1,10 @@
 import { createServerClient } from '@supabase/ssr'
-import { type Handle, redirect } from '@sveltejs/kit'
+import { error, type Handle, redirect } from '@sveltejs/kit'
 import { sequence } from '@sveltejs/kit/hooks'
 
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public'
+import { MQTT_BROKER_URL, MQTT_BROKER_PRT, MQTT_USERNAME, MQTT_PASSWORD } from '$env/static/private'
+import mqtt, { type IClientOptions } from 'mqtt'
 
 const supabase: Handle = async ({ event, resolve }) => {
   /**
@@ -79,4 +81,37 @@ const authGuard: Handle = async ({ event, resolve }) => {
   return resolve(event)
 }
 
-export const handle: Handle = sequence(supabase, authGuard)
+const mqttClient: Handle = async({event, resolve}) => {
+  if(!event.locals.session || !event.locals.user) return resolve(event)
+  
+  const options: IClientOptions = {
+    host: MQTT_BROKER_URL,
+    port: parseInt(MQTT_BROKER_PRT),
+    protocol: 'mqtts',
+    username: MQTT_USERNAME,
+    password: MQTT_PASSWORD,
+  }
+
+  const client = await mqtt.connectAsync(options)
+  
+  client.on(
+    'connect',
+    () => console.log("Connected the server to the broker!")
+  )
+
+  client.on(
+    'error',
+    (mqtt_err) => error(500, mqtt_err.message)
+  )
+
+  client.on(
+    'message',
+    (topic: string, message) => console.log('Received message:', topic, message)
+  )
+
+  event.locals.mqttClient = client
+
+  return resolve(event)
+}
+
+export const handle: Handle = sequence(supabase, authGuard, mqttClient)
