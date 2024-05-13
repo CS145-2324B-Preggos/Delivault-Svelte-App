@@ -26,21 +26,20 @@ export class User {
         filter: UserFilter = {
             user_id: 0,
             box_id: 0
-        }, supabase: SupabaseClient
-    ): Promise<UserResponse> {
-        return selectUserDB(filter, supabase);
+        }): Promise<UserResponse> {
+        return selectUserDB(filter);
     }
 
-    public static async insertUser(user: UserDBObj, supabase: SupabaseClient): Promise<UserResponse> {
-        return insertUserDB(user, supabase);
+    public static async insertUser(user: UserDBObj): Promise<UserResponse> {
+        return insertUserDB(user);
     }
 
-    public static async updateUser(user: UserDBObj, supabase: SupabaseClient): Promise<UserResponse> {
-        return updateUserDB(user, supabase);
+    public static async updateUser(user: UserDBObj): Promise<UserResponse> {
+        return updateUserDB(user);
     }
 
-    public static async deleteUser(user: UserDBObj, supabase: SupabaseClient): Promise<UserResponse> {
-        return deleteUserDB(user.user_id, supabase);
+    public static async deleteUser(user: UserDBObj): Promise<UserResponse> {
+        return deleteUserDB(user.user_id);
     }
     
 }

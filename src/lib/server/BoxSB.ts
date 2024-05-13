@@ -2,13 +2,18 @@ import { SupabaseClient, createClient } from "@supabase/supabase-js";
 import { type BoxDBObj, type BoxFilter, type BoxResponse } from "$lib/classes/Box";
 import { format } from "path";
 
+export const supabase = createClient(
+    "https://agdecwzqfgqljiqmrljx.supabase.co",
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFnZGVjd3pxZmdxbGppcW1ybGp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTQ1NTMwODYsImV4cCI6MjAzMDEyOTA4Nn0.WoEITEshKx5WF5vq_V9ICAdAnfP0m3mwxxRi_1ZFDMk'
+);
+
 const success: BoxResponse = {
 	success: true,
 	boxRawObjs: null,
 	error: null
 };
 
-export async function selectBoxDB(filter: BoxFilter, supabase: SupabaseClient): Promise<BoxResponse> {
+export async function selectBoxDB(filter: BoxFilter): Promise<BoxResponse> {
     let query = supabase
     .from('box')
     .select('box_id, user_id');
@@ -52,7 +57,7 @@ export async function selectBoxDB(filter: BoxFilter, supabase: SupabaseClient): 
     };
 }
 
-export async function insertBoxDB(box: BoxDBObj, supabase: SupabaseClient): Promise<BoxResponse> {
+export async function insertBoxDB(box: BoxDBObj): Promise<BoxResponse> {
     const { error } = await supabase.from('box').insert(box);
 
     if (error) {
@@ -67,8 +72,8 @@ export async function insertBoxDB(box: BoxDBObj, supabase: SupabaseClient): Prom
 }
 
 // only works for checking a single box
-async function checkBoxExistsDB(filter: BoxFilter, supabase: SupabaseClient): Promise<BoxResponse> {
-    const boxDB = await selectBoxDB(filter, supabase);
+async function checkBoxExistsDB(filter: BoxFilter): Promise<BoxResponse> {
+    const boxDB = await selectBoxDB(filter);
 
     if (boxDB.success && boxDB.boxRawObjs?.length == 1){
         return success;
@@ -81,14 +86,13 @@ async function checkBoxExistsDB(filter: BoxFilter, supabase: SupabaseClient): Pr
     }
 }
 
-export async function updateBoxDB(box: BoxDBObj, supabase: SupabaseClient): Promise<BoxResponse> {
+export async function updateBoxDB(box: BoxDBObj): Promise<BoxResponse> {
     // updates a box entry based on their box_id
     // box_id should not be updated
     const boxCheck = await checkBoxExistsDB({
         box_id: box.box_id,
         user_id: 0
-    },
-    supabase);
+    });
 
     if (!boxCheck.success) {
         return boxCheck;
@@ -118,12 +122,11 @@ export async function updateBoxDB(box: BoxDBObj, supabase: SupabaseClient): Prom
     return success;
 }
 
-export async function deleteBoxDB(boxID: number, supabase: SupabaseClient): Promise<BoxResponse> {
+export async function deleteBoxDB(boxID: number): Promise<BoxResponse> {
     const boxCheck = await checkBoxExistsDB({
         box_id: boxID,
         user_id: 0
-    },
-    supabase);
+    });
 
     if (!boxCheck.success) {
 		return boxCheck;

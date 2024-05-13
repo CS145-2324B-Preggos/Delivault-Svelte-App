@@ -2,13 +2,18 @@ import { SupabaseClient, createClient } from "@supabase/supabase-js";
 import { type OrderDBObj, type OrderFilter, type OrderResponse } from "$lib/classes/Order";
 import { format } from "path";
 
+export const supabase = createClient(
+    "https://agdecwzqfgqljiqmrljx.supabase.co",
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFnZGVjd3pxZmdxbGppcW1ybGp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTQ1NTMwODYsImV4cCI6MjAzMDEyOTA4Nn0.WoEITEshKx5WF5vq_V9ICAdAnfP0m3mwxxRi_1ZFDMk'
+);
+
 const success: OrderResponse = {
 	success: true,
 	OrderRawObjs: null,
 	error: null
 };
 
-export async function selectOrderDB(filter: OrderFilter, supabase: SupabaseClient): Promise<OrderResponse> {
+export async function selectOrderDB(filter: OrderFilter): Promise<OrderResponse> {
     let query = supabase
     .from('order')
     .select('order_id, box_id, latest_delivery, earliest_delivery, status');
@@ -68,7 +73,7 @@ export async function selectOrderDB(filter: OrderFilter, supabase: SupabaseClien
     };
 }
 
-export async function insertOrderDB(order: OrderDBObj, supabase: SupabaseClient): Promise<OrderResponse> {
+export async function insertOrderDB(order: OrderDBObj): Promise<OrderResponse> {
     const { error } = await supabase.from('order').insert(order);
 
     if (error) {
@@ -83,8 +88,8 @@ export async function insertOrderDB(order: OrderDBObj, supabase: SupabaseClient)
 }
 
 // only works for checking a single order
-async function checkOrderExistsDB(filter: OrderFilter, supabase: SupabaseClient): Promise<OrderResponse> {
-    const orderDB = await selectOrderDB(filter, supabase);
+async function checkOrderExistsDB(filter: OrderFilter): Promise<OrderResponse> {
+    const orderDB = await selectOrderDB(filter);
 
     if (orderDB.success && orderDB.OrderRawObjs?.length == 1){
         return success;
@@ -97,7 +102,7 @@ async function checkOrderExistsDB(filter: OrderFilter, supabase: SupabaseClient)
     }
 }
 
-export async function updateOrderDB(order: OrderDBObj, supabase: SupabaseClient): Promise<OrderResponse> {
+export async function updateOrderDB(order: OrderDBObj): Promise<OrderResponse> {
     // updates a order entry based on their order_id
     // order_id should not be updated
     const orderCheck = await checkOrderExistsDB({
@@ -106,8 +111,7 @@ export async function updateOrderDB(order: OrderDBObj, supabase: SupabaseClient)
         latest_delivery: order.latest_delivery,
         earliest_delivery: order.earliest_delivery,
         status: order.status
-    },
-    supabase);
+    });
 
     if (!orderCheck.success) {
         return orderCheck;
@@ -137,15 +141,14 @@ export async function updateOrderDB(order: OrderDBObj, supabase: SupabaseClient)
     return success;
 }
 
-export async function deleteOrderDB(orderID: number, supabase: SupabaseClient): Promise<OrderResponse> {
+export async function deleteOrderDB(orderID: number): Promise<OrderResponse> {
     const orderCheck = await checkOrderExistsDB({
         order_id: orderID,
         box_id: 0,
         latest_delivery: "",
         earliest_delivery: "",
         status: false
-    },
-    supabase);
+    });
 
     if (!orderCheck.success) {
 		return orderCheck;

@@ -35,21 +35,20 @@ export class Order {
             latest_delivery: "",
             earliest_delivery: "",
             status: false
-        }, supabase: SupabaseClient
-    ): Promise<OrderResponse> {
-        return selectOrderDB(filter, supabase);
+        }): Promise<OrderResponse> {
+        return selectOrderDB(filter);
     }
 
-    public static async insertOrder(order: OrderDBObj, supabase: SupabaseClient): Promise<OrderResponse> {
-        return insertOrderDB(order, supabase);
+    public static async insertOrder(order: OrderDBObj): Promise<OrderResponse> {
+        return insertOrderDB(order);
     }
 
-    public static async updateOrder(order: OrderDBObj, supabase: SupabaseClient): Promise<OrderResponse> {
-        return updateOrderDB(order, supabase);
+    public static async updateOrder(order: OrderDBObj): Promise<OrderResponse> {
+        return updateOrderDB(order);
     }
 
-    public static async deleteOrder(order: OrderDBObj, supabase: SupabaseClient): Promise<OrderResponse> {
-        return deleteOrderDB(order.order_id, supabase);
+    public static async deleteOrder(order: OrderDBObj): Promise<OrderResponse> {
+        return deleteOrderDB(order.order_id);
     }
     
 }

@@ -24,21 +24,20 @@ export class Box {
         filter: BoxFilter = {
             box_id: 0,
             user_id: 0
-        }, supabase: SupabaseClient
-    ): Promise<BoxResponse> {
-        return selectBoxDB(filter, supabase);
+        }): Promise<BoxResponse> {
+        return selectBoxDB(filter);
     }
 
-    public static async insertBox(box: BoxDBObj, supabase: SupabaseClient): Promise<BoxResponse> {
-        return insertBoxDB(box, supabase);
+    public static async insertBox(box: BoxDBObj): Promise<BoxResponse> {
+        return insertBoxDB(box);
     }
 
-    public static async updateBox(box: BoxDBObj, supabase: SupabaseClient): Promise<BoxResponse> {
-        return updateBoxDB(box, supabase);
+    public static async updateBox(box: BoxDBObj): Promise<BoxResponse> {
+        return updateBoxDB(box);
     }
 
-    public static async deleteBox(box: BoxDBObj, supabase: SupabaseClient): Promise<BoxResponse> {
-        return deleteBoxDB(box.box_id, supabase);
+    public static async deleteBox(box: BoxDBObj): Promise<BoxResponse> {
+        return deleteBoxDB(box.box_id);
     }
     
 }
