@@ -1,4 +1,5 @@
 import { insertUserDB, deleteUserDB, selectUserDB, updateUserDB } from "$lib/server/UserDB";
+import type { UserProcessed } from "$lib/utils/types";
 import type { SupabaseClient } from "@supabase/supabase-js"; 
 // parameters for insertion and update
 export type UserDBObj = {
@@ -22,24 +23,33 @@ export type UserFilter = {
 }
 
 export class User {
+    public static toUserObject(user: UserProcessed): UserDBObj {
+        return {
+			user_id: user.user_id,
+            last_name: user.last_name,
+            first_name: user.first_name,
+            box_id: user.box_id
+		};
+    }
+    
     public static async selectUsers(
         filter: UserFilter = {
             user_id: 0,
             box_id: 0
-        }): Promise<UserResponse> {
-        return selectUserDB(filter);
+        }, supabase: SupabaseClient): Promise<UserResponse> {
+        return selectUserDB(filter, supabase);
     }
 
-    public static async insertUser(user: UserDBObj): Promise<UserResponse> {
-        return insertUserDB(user);
+    public static async insertUser(user: UserDBObj, supabase: SupabaseClient): Promise<UserResponse> {
+        return insertUserDB(user, supabase);
     }
 
-    public static async updateUser(user: UserDBObj): Promise<UserResponse> {
-        return updateUserDB(user);
+    public static async updateUser(user: UserDBObj, supabase: SupabaseClient): Promise<UserResponse> {
+        return updateUserDB(user, supabase);
     }
 
-    public static async deleteUser(user: UserDBObj): Promise<UserResponse> {
-        return deleteUserDB(user.user_id);
+    public static async deleteUser(user: UserDBObj, supabase: SupabaseClient): Promise<UserResponse> {
+        return deleteUserDB(user.user_id, supabase);
     }
     
 }

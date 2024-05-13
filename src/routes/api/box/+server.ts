@@ -1,20 +1,20 @@
 import { Box } from "$lib/classes/Box";
 import { json } from "@sveltejs/kit";
 
-export async function POST({ request }) {
+export async function POST({ request, locals: { supabase } }) {
 	/* Handles Select requests for admin records. */
 	const filter = await request.json();
-	return json(await Box.selectBoxes(filter));
+	return json(await Box.selectBoxes(filter, supabase));
 }
 
-export async function PATCH({ request }) {
+export async function PATCH({ request, locals: { supabase } }) {
 	/* Handles Update and Approve requests for admin records. */
-	const updateInfo = Admin.toAdminDBObj(await request.json());
-	return json(await Admin.updateAdmin(updateInfo));
+	const updateInfo = Box(await request.json());
+	return json(await Box.updateBox(updateInfo, supabase));
 }
 
-export async function DELETE({ request }) {
+export async function DELETE({ request, locals: { supabase } }) {
 	/* Handles Delete requests for admin records. */
-	const admin = await request.json();
-	return json(await Admin.deleteAdmin(admin.adminID));
+	const box = await request.json();
+	return json(await Box.deleteBox(box.box_id, supabase));
 }

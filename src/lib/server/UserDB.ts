@@ -2,18 +2,13 @@ import { SupabaseClient, createClient } from "@supabase/supabase-js";
 import { type UserDBObj, type UserFilter, type UserResponse } from "$lib/classes/User";
 import { format } from "path";
 
-export const supabase = createClient(
-    "https://agdecwzqfgqljiqmrljx.supabase.co",
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFnZGVjd3pxZmdxbGppcW1ybGp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTQ1NTMwODYsImV4cCI6MjAzMDEyOTA4Nn0.WoEITEshKx5WF5vq_V9ICAdAnfP0m3mwxxRi_1ZFDMk'
-);
-
 const success: UserResponse = {
 	success: true,
 	userRawObjs: null,
 	error: null
 };
 
-export async function selectUserDB(filter: UserFilter): Promise<UserResponse> {
+export async function selectUserDB(filter: UserFilter, supabase: SupabaseClient): Promise<UserResponse> {
     let query = supabase
     .from('user')
     .select('user_id, box_id');
@@ -59,7 +54,7 @@ export async function selectUserDB(filter: UserFilter): Promise<UserResponse> {
     };
 }
 
-export async function insertUserDB(user: UserDBObj): Promise<UserResponse> {
+export async function insertUserDB(user: UserDBObj, supabase: SupabaseClient): Promise<UserResponse> {
     const { error } = await supabase.from('user').insert(user);
 
     if (error) {
@@ -74,8 +69,8 @@ export async function insertUserDB(user: UserDBObj): Promise<UserResponse> {
 }
 
 // only works for checking a single user
-async function checkUserExistsDB(filter: UserFilter): Promise<UserResponse> {
-    const userDB = await selectUserDB(filter);
+async function checkUserExistsDB(filter: UserFilter, supabase: SupabaseClient): Promise<UserResponse> {
+    const userDB = await selectUserDB(filter, supabase);
 
     if (userDB.success && userDB.userRawObjs?.length == 1){
         return success;
@@ -88,13 +83,13 @@ async function checkUserExistsDB(filter: UserFilter): Promise<UserResponse> {
     }
 }
 
-export async function updateUserDB(user: UserDBObj): Promise<UserResponse> {
+export async function updateUserDB(user: UserDBObj, supabase: SupabaseClient): Promise<UserResponse> {
     // updates a user entry based on their user_id
     // user_id should not be updated
     const userCheck = await checkUserExistsDB({
         user_id: user.user_id,
         box_id: 0
-    });
+    }, supabase);
 
     if (!userCheck.success) {
         return userCheck;
@@ -124,11 +119,11 @@ export async function updateUserDB(user: UserDBObj): Promise<UserResponse> {
     return success;
 }
 
-export async function deleteUserDB(userID: number): Promise<UserResponse> {
+export async function deleteUserDB(userID: number, supabase: SupabaseClient): Promise<UserResponse> {
     const userCheck = await checkUserExistsDB({
         user_id: userID,
         box_id: 0
-    });
+    }, supabase);
 
     if (!userCheck.success) {
 		return userCheck;

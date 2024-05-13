@@ -1,4 +1,6 @@
 import { insertBoxDB, selectBoxDB, updateBoxDB, deleteBoxDB } from "$lib/server/BoxSB";
+import { userID } from "$lib/stores/User";
+import type { BoxProcessed } from "$lib/utils/types";
 import type { SupabaseClient } from "@supabase/supabase-js"; 
 // parameters for insertion and update
 export type BoxDBObj = {
@@ -20,24 +22,32 @@ export type BoxFilter = {
 }
 
 export class Box {
+
+    public static toBoxObject(box: BoxProcessed): BoxDBObj {
+        return {
+			box_id: box.box_id,
+            user_id: box.user_id
+		};
+    }
+
     public static async selectBoxes(
         filter: BoxFilter = {
             box_id: 0,
             user_id: 0
-        }): Promise<BoxResponse> {
-        return selectBoxDB(filter);
+        }, supabase: SupabaseClient): Promise<BoxResponse> {
+        return selectBoxDB(filter, supabase);
     }
 
-    public static async insertBox(box: BoxDBObj): Promise<BoxResponse> {
-        return insertBoxDB(box);
+    public static async insertBox(box: BoxDBObj, supabase: SupabaseClient): Promise<BoxResponse> {
+        return insertBoxDB(box, supabase);
     }
 
-    public static async updateBox(box: BoxDBObj): Promise<BoxResponse> {
-        return updateBoxDB(box);
+    public static async updateBox(box: BoxDBObj, supabase: SupabaseClient): Promise<BoxResponse> {
+        return updateBoxDB(box, supabase);
     }
 
-    public static async deleteBox(box: BoxDBObj): Promise<BoxResponse> {
-        return deleteBoxDB(box.box_id);
+    public static async deleteBox(box: BoxDBObj, supabase: SupabaseClient): Promise<BoxResponse> {
+        return deleteBoxDB(box.box_id, supabase);
     }
     
 }

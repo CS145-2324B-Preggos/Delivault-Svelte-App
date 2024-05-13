@@ -1,4 +1,5 @@
 import { insertOrderDB, selectOrderDB, updateOrderDB, deleteOrderDB } from "$lib/server/OrderSB";
+import type { OrderProcessed } from "$lib/utils/types";
 import type { SupabaseClient } from "@supabase/supabase-js"; 
 // parameters for insertion and update
 
@@ -28,6 +29,16 @@ export type OrderFilter = {
 }
 
 export class Order {
+    public static toOrderObject(order: OrderProcessed): OrderDBObj {
+        return {
+			order_id: order.order_id,
+            box_id: order.box_id,
+            latest_delivery: order.latest_delivery,
+            earliest_delivery: order.earliest_delivery,
+            password: order.password,
+            status: order.status
+		};
+    }
     public static async selectOrders(
         filter: OrderFilter = {
             order_id: 0,
@@ -35,20 +46,20 @@ export class Order {
             latest_delivery: "",
             earliest_delivery: "",
             status: false
-        }): Promise<OrderResponse> {
-        return selectOrderDB(filter);
+        }, supabase: SupabaseClient): Promise<OrderResponse> {
+        return selectOrderDB(filter, supabase);
     }
 
-    public static async insertOrder(order: OrderDBObj): Promise<OrderResponse> {
-        return insertOrderDB(order);
+    public static async insertOrder(order: OrderDBObj, supabase: SupabaseClient): Promise<OrderResponse> {
+        return insertOrderDB(order, supabase);
     }
 
-    public static async updateOrder(order: OrderDBObj): Promise<OrderResponse> {
-        return updateOrderDB(order);
+    public static async updateOrder(order: OrderDBObj, supabase: SupabaseClient): Promise<OrderResponse> {
+        return updateOrderDB(order, supabase);
     }
 
-    public static async deleteOrder(order: OrderDBObj): Promise<OrderResponse> {
-        return deleteOrderDB(order.order_id);
+    public static async deleteOrder(order: OrderDBObj, supabase: SupabaseClient): Promise<OrderResponse> {
+        return deleteOrderDB(order.order_id, supabase);
     }
     
 }
