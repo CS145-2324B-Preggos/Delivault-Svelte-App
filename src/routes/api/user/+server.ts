@@ -1,6 +1,8 @@
 import { User } from "$lib/classes/User";
 import { json } from "@sveltejs/kit";
 
+// Requests for viewing all users (may not be used)
+
 export async function POST({ request }, locals: { supabase }) {
 	/* Handles Select requests for admin records. */
 	const filter = await request.json();

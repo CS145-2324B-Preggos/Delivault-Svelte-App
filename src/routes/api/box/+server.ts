@@ -1,6 +1,8 @@
 import { Box } from "$lib/classes/Box";
 import { json } from "@sveltejs/kit";
 
+// Requests for viewing all boxes (perhaps of a certain user, can be tweaked in the filters)
+
 export async function POST({ request }, locals: { supabase } ) {
 	/* Handles Select requests for admin records. */
 	const filter = await request.json();

@@ -1,6 +1,8 @@
 import { Order } from "$lib/classes/Order";
 import { json } from "@sveltejs/kit";
 
+// Requests for viewing all orders (perhaps of a certain user, can be tweaked in the filters)
+
 export async function POST( { request }, locals: { supabase } ) {
 	/* Handles Select requests for admin records. */
 	const filter = await request.json();
