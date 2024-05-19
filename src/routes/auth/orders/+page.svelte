@@ -1,6 +1,118 @@
 <script lang=ts>
-  import AddOrderScreen from "../../../lib/components/ordersComponents/addOrderScreen.svelte";
-  import AddOrderForm from "../../../lib/components/ordersComponents/addOrderForm.svelte";
+  import AddOrderScreen from "$lib/components/ordersComponents/addOrderScreen.svelte";
+  import AddOrderForm from "$lib/components/ordersComponents/addOrderForm.svelte"; 
+  import { type OrderProcessed } from "$lib/utils/types";
+  import { type OrderDBObj, type OrderFilter } from "$lib/classes/Order";
+  import { OrderFilterStore } from "$lib/stores/Filters";
+  import { browser } from "$app/environment";
+
+  export let data;
+
+  //for filters
+	$: {
+		if (browser) handleSelect($OrderFilterStore);
+	}
+
+  import { type RealtimeChannel } from '@supabase/supabase-js';
+  import { supabaseFront } from '$lib/stores/SupabaseClient.js';
+  let channel: RealtimeChannel;
+
+  onMount(() => {
+    let orderObjects = data.orderRaws;
+    mapOrderDatabaseObjects(orderObjects);
+
+    channel = $supabaseFront
+      .channel('order-db-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'order' }, () => {
+        handleSelect($OrderFilterStore);
+      })
+      .subscribe();
+  });
+
+  onDestroy(() => {
+    $supabaseFront.removeChannel(channel);
+  });
+
+  function mapOrderDatabaseObjects(orderObjects: OrderDBObj[] | null) {
+    if (orderObjects !== null && orderObjects !== undefined) {
+      orders = orderObjects.map((order) => {
+        return {
+          order_id: order.order_id,
+          box_id: order.box_id,
+          latest_delivery: order.latest_delivery,
+          earliest_delivery: order.earliest_delivery,
+          password: order.password,
+          status: order.status
+        }
+      });
+    } else {
+      orders = []
+    }
+  }
+
+  import { type OrderDBObj, type OrderResponse } from "$lib/classes/Order";
+  import { SvelteComponent, onDestroy, onMount } from "svelte";
+	import { table } from "console";
+
+  let deleteResponse: StudentResponse;
+	let updateResponse: StudentResponse;
+	let selectResponse: StudentResponse;
+
+  async function handleSelect(filter: OrderFilter) {
+    /* Handles Select event from the filter confirmation by sending a
+    POST request with payload requirement: filter. */
+
+    const response = await fetch('../../api/order', {
+      method: 'POST',
+      body: JSON.stringify(filter),
+      headers: {
+        'content-type': 'application/json'
+      }
+    });
+
+    selectResponse = await response.json();
+    mapOrderDatabaseObjects(selectResponse.orderRaws);
+  }
+
+  async function handleDelete(event: CustomEvent) {
+    const response = await fetch('../../api/order', {
+      method: 'DELETE',
+      body: JSON.stringify(event.detail),
+      headers: {
+        'content-type': 'application/json'
+      }
+    });
+
+    deleteResponse = await response.json();
+    if (deleteResponse.success == true) {
+      //table.deleteEntryUI(); implement this sa component
+      console.log("deleted: ", deleteResponse.orderRaws);
+    } else {
+      console.log("Failed to delete order entry.");
+    }
+  }
+
+  async function handleUpdate(event: CustomEvent) {
+		/* Handles Update event from TableRow by sending a PATCH request with 
+        payload requirement: order_id, 
+        optional: box_id, latest_delivery, earliest_delivery, status. */
+
+		const response = await fetch('../../api/order', {
+			method: 'PATCH',
+			body: JSON.stringify(event.detail),
+			headers: {
+				'content-type': 'application/json'
+			}
+		});
+
+		updateResponse = await response.json();
+		if (updateResponse.success == true) {
+			//table.updateEntryUI(); // implement this
+			console.log("updated: ", updateResponse.orderRaws)
+		} else {
+      console.log("Failed to delete order entry.");
+		}
+	}
 
   let showAddOrderScreen = false;
 
