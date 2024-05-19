@@ -6,6 +6,7 @@ export type BoxProcessed = {
 export type OrderProcessed = {
     order_id: number;
     box_id: number;
+    order_name: string;
     latest_delivery: string;
     earliest_delivery: string;
     password: string;

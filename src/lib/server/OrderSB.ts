@@ -21,6 +21,10 @@ export async function selectOrderDB(filter: OrderFilter, supabase: SupabaseClien
         query = query.eq('box_id',filter.box_id);
     }
 
+    if (filter.order_name != null){
+        query = query.eq('order_id',filter.box_id);
+    }
+
     if (filter.latest_delivery != null){
         query = query.eq('latest_delivery',filter.latest_delivery);
     }
@@ -54,6 +58,7 @@ export async function selectOrderDB(filter: OrderFilter, supabase: SupabaseClien
             formattedData.push({
                 order_id: row.order_id,
                 box_id: row.box_id,
+                order_name: row.order_id,
                 latest_delivery: row.latest_delivery,
                 earliest_delivery: row.earliest_delivery,
                 password: row.password,
@@ -103,6 +108,7 @@ export async function updateOrderDB(order: OrderDBObj, supabase: SupabaseClient)
     const orderCheck = await checkOrderExistsDB({
         order_id: order.order_id,
         box_id: order.box_id,
+        order_name: order.order_name,
         latest_delivery: order.latest_delivery,
         earliest_delivery: order.earliest_delivery,
         status: order.status
@@ -140,6 +146,7 @@ export async function deleteOrderDB(orderID: number, supabase: SupabaseClient): 
     const orderCheck = await checkOrderExistsDB({
         order_id: orderID,
         box_id: 0,
+        order_name: "",
         latest_delivery: "",
         earliest_delivery: "",
         status: false

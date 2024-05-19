@@ -6,6 +6,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export type OrderDBObj = {
     order_id: number,
     box_id: number;
+    order_name: string,
     latest_delivery: string;
     earliest_delivery: string;
     password: string;
@@ -23,6 +24,7 @@ export type OrderResponse = {
 export type OrderFilter = {
     order_id: number,
     box_id: number;
+    order_name: string;
     latest_delivery: string;
     earliest_delivery: string;
     status: boolean
@@ -33,6 +35,7 @@ export class Order {
         return {
 			order_id: order.order_id,
             box_id: order.box_id,
+            order_name: order.order_name,
             latest_delivery: order.latest_delivery,
             earliest_delivery: order.earliest_delivery,
             password: order.password,
@@ -43,6 +46,7 @@ export class Order {
         filter: OrderFilter = {
             order_id: 0,
             box_id: 0,
+            order_name: "",
             latest_delivery: "",
             earliest_delivery: "",
             status: false

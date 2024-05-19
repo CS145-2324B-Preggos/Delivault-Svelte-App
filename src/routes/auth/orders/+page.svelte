@@ -2,9 +2,11 @@
   import AddOrderScreen from "$lib/components/ordersComponents/addOrderScreen.svelte";
   import AddOrderForm from "$lib/components/ordersComponents/addOrderForm.svelte"; 
   import { type OrderProcessed } from "$lib/utils/types";
-  import { type OrderDBObj, type OrderFilter } from "$lib/classes/Order";
+  import { type OrderDBObj, type OrderFilter, type OrderResponse } from "$lib/classes/Order";
   import { OrderFilterStore } from "$lib/stores/Filters";
   import { browser } from "$app/environment";
+  import { type RealtimeChannel } from '@supabase/supabase-js';
+  import { supabaseFront } from '$lib/stores/SupabaseClient.js';
 
   export let data;
 
@@ -13,8 +15,6 @@
 		if (browser) handleSelect($OrderFilterStore);
 	}
 
-  import { type RealtimeChannel } from '@supabase/supabase-js';
-  import { supabaseFront } from '$lib/stores/SupabaseClient.js';
   let channel: RealtimeChannel;
 
   onMount(() => {
@@ -37,12 +37,10 @@
     if (orderObjects !== null && orderObjects !== undefined) {
       orders = orderObjects.map((order) => {
         return {
-          order_id: order.order_id,
-          box_id: order.box_id,
-          latest_delivery: order.latest_delivery,
-          earliest_delivery: order.earliest_delivery,
-          password: order.password,
-          status: order.status
+          id: order.order_id,
+          name: order.order_name,
+          status: order.status,
+          latestDeliveryDate: order.latest_delivery
         }
       });
     } else {
@@ -50,13 +48,12 @@
     }
   }
 
-  import { type OrderDBObj, type OrderResponse } from "$lib/classes/Order";
   import { SvelteComponent, onDestroy, onMount } from "svelte";
 	import { table } from "console";
 
-  let deleteResponse: StudentResponse;
-	let updateResponse: StudentResponse;
-	let selectResponse: StudentResponse;
+  let deleteResponse: OrderResponse;
+	let updateResponse: OrderResponse;
+	let selectResponse: OrderResponse;
 
   async function handleSelect(filter: OrderFilter) {
     /* Handles Select event from the filter confirmation by sending a
@@ -106,61 +103,56 @@
 		});
 
 		updateResponse = await response.json();
-		if (updateResponse.success == true) {
+		if (updateResponse.success) {
 			//table.updateEntryUI(); // implement this
-			console.log("updated: ", updateResponse.orderRaws)
+			console.log("updated: ", updateResponse.orderRaws);
+      handleSelect($OrderFilterStore);
 		} else {
-      console.log("Failed to delete order entry.");
+      console.error("Failed to delete order entry.");
 		}
 	}
 
   let showAddOrderScreen = false;
 
-  let orders = [
-    {
-      id: 1,
-      name: "Kendrick shirt",
-      status: false,
-      latestDeliveryDate: "June 1, 2024",
-    },
-    {
-      id: 2,
-      name: "21 Savage Tee",
-      status: false,
-      latestDeliveryDate: "July 10, 2024",
-    },
-    {
-      id: 3,
-      name: "Drake cap",
-      status: false,
-      latestDeliveryDate: "August 30, 2024",
-    },
-    {
-      id: 4,
-      name: "Anita Max Wynn",
-      status: false,
-      latestDeliveryDate: "December 18, 2024",
-    },
-  ];
+  let orders: { id: number; name: string; status: boolean; latestDeliveryDate: string }[] = [];
 
   const toggleAddOrderScreen = () => {
     showAddOrderScreen = !showAddOrderScreen;
   };
 
-  const handleAddOrderFormSubmit = (e:CustomEvent) => {
-    let newOrderId = orders.length + 1;
+  const handleAddOrderFormSubmit = async (e: CustomEvent) => {
     const orderDetails = e.detail;
-    orders = [
-      {
-        id: newOrderId,
-        name: orderDetails.orderName,
-        status: false,
-        latestDeliveryDate: orderDetails.expectedDeliveryDate,
-      },
-      ...orders,
-    ];
-    console.log(e.detail);
-    showAddOrderScreen = false;
+
+    // Send a POST request to the server to create a new order
+    const response = await fetch('../../api/order', {
+      method: 'POST',
+      body: JSON.stringify({
+        order_name: orderDetails.orderName,
+        latest_delivery: orderDetails.expectedDeliveryDate,
+        status: false
+      }),
+      headers: {
+        'content-type': 'application/json'
+      }
+    });
+
+    const result = await response.json();
+
+    if (response.ok && result.success) {
+      // Add the new order to the orders array with the ID returned from the server
+      orders = [
+        {
+          id: result.order.order_id, // Assuming the response contains the new order with an ID
+          name: result.order.order_name,
+          status: result.order.status,
+          latestDeliveryDate: result.order.latest_delivery,
+        },
+        ...orders,
+      ];
+      showAddOrderScreen = false;
+    } else {
+      console.error('Failed to add order:', result.message);
+    }
   };
 </script>
 
