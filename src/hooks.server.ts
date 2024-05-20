@@ -19,6 +19,7 @@ const options: IClientOptions = {
 // Initialize and connect the mqtt client
 const client = await mqtt.connectAsync(options);
 client.connect();
+client.publish("sys/log", "Hello, world!");
 
 // Before the server is killed, disconnect the client 
 
