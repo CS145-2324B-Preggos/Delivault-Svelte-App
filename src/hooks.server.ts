@@ -6,6 +6,24 @@ import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/publi
 import { MQTT_BROKER_URL, MQTT_BROKER_PRT, MQTT_USERNAME, MQTT_PASSWORD } from '$env/static/private'
 import mqtt, { type IClientOptions } from 'mqtt'
 
+// On server startup, set up the client
+
+const options: IClientOptions = {
+  host: MQTT_BROKER_URL,
+  port: parseInt(MQTT_BROKER_PRT),
+  protocol: 'mqtts',
+  username: MQTT_USERNAME,
+  password: MQTT_PASSWORD,
+};
+
+// Initialize and connect the mqtt client
+const client = await mqtt.connectAsync(options);
+client.connect();
+
+// Before the server is killed, disconnect the client 
+
+process.on('exit', () => client.end());
+
 const supabase: Handle = async ({ event, resolve }) => {
   /**
    * Creates a Supabase client specific to this server request.
@@ -83,16 +101,6 @@ const authGuard: Handle = async ({ event, resolve }) => {
 
 const mqttClient: Handle = async({event, resolve}) => {
   if(!event.locals.session || !event.locals.user) return resolve(event)
-  
-  const options: IClientOptions = {
-    host: MQTT_BROKER_URL,
-    port: parseInt(MQTT_BROKER_PRT),
-    protocol: 'mqtts',
-    username: MQTT_USERNAME,
-    password: MQTT_PASSWORD,
-  }
-
-  const client = await mqtt.connectAsync(options)
   
   client.on(
     'connect',
