@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { PageData } from '../auth/$types';
+	import { goto } from '$app/navigation';
     
     export let data: PageData;
 
@@ -9,6 +10,33 @@
         supabase.auth.signInWithOAuth({
             provider: 'google',
         })
+    }
+
+    let loading = false;
+    let loginResponse: UserResponse
+
+    import { type UserResponse } from '$lib/classes/User';
+
+    async function handleLogin(event: CustomEvent) {
+        loading = true;
+        const payload = { user_id: event.detail };
+
+        const response = await fetch('api/login', {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            headers: {
+                'content-type': 'application/json'
+            }
+        });
+
+        loginResponse = await response.json();
+        loading = false;
+
+        if ('userRaws' in loginResponse) {
+            if (loginResponse.success && loginResponse.userRaws?.length == 1) {
+                goto('/'); // directory of page once successful login
+            }
+        }
     }
 </script>
 
