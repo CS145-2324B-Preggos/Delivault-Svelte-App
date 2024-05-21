@@ -14,12 +14,27 @@ const options: IClientOptions = {
   protocol: 'mqtts',
   username: MQTT_USERNAME,
   password: MQTT_PASSWORD,
+  keepalive: 15,
 };
 
 // Initialize and connect the mqtt client
-const client = await mqtt.connectAsync(options);
-client.connect();
+const client = mqtt.connect(options);
 client.publish("sys/log", "Hello, world!");
+
+client.on(
+  'connect',
+  () => console.log("Connected the server to the broker!")
+)
+
+client.on(
+  'error',
+  (mqtt_err) => error(500, mqtt_err.message)
+)
+
+client.on(
+  'message',
+  (topic: string, message) => console.log('Received message:', topic, message)
+)
 
 // Before the server is killed, disconnect the client 
 
@@ -102,23 +117,9 @@ const authGuard: Handle = async ({ event, resolve }) => {
 
 const mqttClient: Handle = async({event, resolve}) => {
   if(!event.locals.session || !event.locals.user) return resolve(event)
-  
-  client.on(
-    'connect',
-    () => console.log("Connected the server to the broker!")
-  )
-
-  client.on(
-    'error',
-    (mqtt_err) => error(500, mqtt_err.message)
-  )
-
-  client.on(
-    'message',
-    (topic: string, message) => console.log('Received message:', topic, message)
-  )
 
   event.locals.mqttClient = client
+  client.publish("sys/log", "Hello, world!")
 
   return resolve(event)
 }
