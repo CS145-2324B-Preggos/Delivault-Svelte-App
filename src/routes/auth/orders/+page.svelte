@@ -14,7 +14,6 @@
 
   let supabase = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
   let showAddOrderScreen = false;
-  // let orders = [];
 
   const toggleAddOrderScreen = () => {
     showAddOrderScreen = !showAddOrderScreen;
@@ -33,7 +32,7 @@
     }
   }
 
-  const updateOrder = async (order) => {
+  const updateOrder = async (order: OrderDBObj) => {
     try {
       const { data, error } = await supabase
       .from("order")
@@ -46,7 +45,7 @@
     }
   }
 
-  const deleteOrder = async (order) => {
+  const deleteOrder = async (order: OrderDBObj) => {
     try {
       const { data, error } = await supabase
       .from("order")
@@ -58,30 +57,35 @@
       console.log(err);
     }
   }
-
-  // const handleAddOrderFormSubmit = (e:CustomEvent) => {
-  //   let newOrderId = orders.length + 1;
-  //   const orderDetails = e.detail;
-  //   orders = [
-  //     {
-  //       id: newOrderId,
-  //       name: orderDetails.orderName,
-  //       status: false,
-  //       latestDeliveryDate: orderDetails.expectedDeliveryDate,
-  //     },
-  //     ...orders,
-  //   ];
-  //   console.log(e.detail);
-  //   showAddOrderScreen = false;
-  // };
+  
+  const handleAddOrderFormSubmit = async (e:CustomEvent) => {
+    let newOrderId = orders.length + 1;
+    const orderDetails = e.detail;
+    try{
+      const { data, error } = await supabase
+        .from('order')
+        .insert({
+          order_id: newOrderId, 
+          box_id: 0, // for now
+          order_name: orderDetails.order_name,
+          password: orderDetails.password,
+          status: false
+        });
+      console.log(e.detail);
+      showAddOrderScreen = false;
+      await getAllOrders();
+    } catch (err) {
+      console.log(err);
+    }
+  };
 </script>
 
-<!-- <AddOrderScreen {showAddOrderScreen} on:click={toggleAddOrderScreen}>
-  <AddOrderForm
+<AddOrderScreen {showAddOrderScreen} on:click={toggleAddOrderScreen}>
+  <AddOrderForm 
     on:cancelClick={toggleAddOrderScreen}
     on:addOrderFormSubmit={handleAddOrderFormSubmit}
   />
-</AddOrderScreen> -->
+</AddOrderScreen>
 
 <main>
   <div class="mainContainer">
@@ -94,9 +98,13 @@
           <p>No Orders Yet</p>
         {/each}
       </div>
+
+
       <button class="addOrderButton" on:click={toggleAddOrderScreen}
         >Add order</button
       >
+
+
     </div>
   </div>
 </main>
