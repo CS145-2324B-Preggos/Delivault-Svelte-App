@@ -79,7 +79,7 @@
           box_id: 0, // for now
           order_name: orderDetails.order_name,
           password: orderDetails.password,
-          courier_details: orderDetails.courier_details,
+          courier_details: orderDetails.courier_contact_details,
           status: false
         });
       console.log(e.detail);
