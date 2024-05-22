@@ -4,13 +4,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 // parameters for insertion and update
 
 export type OrderDBObj = {
-    order_id: number,
+    order_id: number;
     box_id: number;
-    order_name: string,
-    latest_delivery: string;
-    earliest_delivery: string;
+    order_name: string;
     password: string;
-    status: boolean
+    status: boolean;
 }
 
 // database response of Order functions
@@ -25,8 +23,6 @@ export type OrderFilter = {
     order_id: number,
     box_id: number;
     order_name: string;
-    latest_delivery: string;
-    earliest_delivery: string;
     status: boolean
 }
 
@@ -36,8 +32,6 @@ export class Order {
 			order_id: order.order_id,
             box_id: order.box_id,
             order_name: order.order_name,
-            latest_delivery: order.latest_delivery,
-            earliest_delivery: order.earliest_delivery,
             password: order.password,
             status: order.status
 		};
@@ -47,8 +41,6 @@ export class Order {
             order_id: 0,
             box_id: 0,
             order_name: "",
-            latest_delivery: "",
-            earliest_delivery: "",
             status: false
         }, supabase: SupabaseClient): Promise<OrderResponse> {
         return selectOrderDB(filter, supabase);

@@ -12,32 +12,6 @@
         })
     }
 
-    let loading = false;
-    let loginResponse: UserResponse
-
-    import { type UserResponse } from '$lib/classes/User';
-
-    async function handleLogin(event: CustomEvent) {
-        loading = true;
-        const payload = { user_id: event.detail };
-
-        const response = await fetch('api/login', {
-            method: 'POST',
-            body: JSON.stringify(payload),
-            headers: {
-                'content-type': 'application/json'
-            }
-        });
-
-        loginResponse = await response.json();
-        loading = false;
-
-        if ('userRaws' in loginResponse) {
-            if (loginResponse.success && loginResponse.userRaws?.length == 1) {
-                goto('/'); // directory of page once successful login
-            }
-        }
-    }
 </script>
 
 <div class="container h-full flex justify-center items-center mx-auto prose-invert">

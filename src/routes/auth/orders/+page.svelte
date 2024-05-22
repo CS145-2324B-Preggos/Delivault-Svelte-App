@@ -12,7 +12,7 @@
 
   export let data;
 
-  let orders: { id: number; name: string; status: boolean; latestDeliveryDate: string }[] = [];
+  let orders: { id: number; name: string; status: boolean}[] = [];
 
   //for filters
 	$: {
@@ -44,7 +44,6 @@
           id: order.order_id,
           name: order.order_name,
           status: order.status,
-          latestDeliveryDate: order.latest_delivery
         }
       });
     } else {
@@ -125,7 +124,6 @@
       method: 'POST',
       body: JSON.stringify({
         order_name: orderDetails.orderName,
-        latest_delivery: orderDetails.expectedDeliveryDate,
         status: false
       }),
       headers: {
@@ -141,9 +139,8 @@
         {
           id: result.order.order_id, // Assuming the response contains the new order with an ID
           name: result.order.order_name,
-          status: result.order.status,
-          latestDeliveryDate: result.order.latest_delivery,
-        },
+          status: result.order.status
+                },
         ...orders,
       ];
       showAddOrderScreen = false;
@@ -168,7 +165,6 @@
         {#each orders as order}
           <h2>{order.name}</h2>
           <p>{order.status ? 'Active' : 'Inactive'}</p>
-          <p>{order.latestDeliveryDate}</p>
         {/each}
       </div>
       <button class="addOrderButton" on:click={toggleAddOrderScreen}>Add order</button>

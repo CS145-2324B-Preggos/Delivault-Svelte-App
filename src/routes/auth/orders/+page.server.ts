@@ -7,8 +7,6 @@ export const load: PageServerLoad = async ({ locals }) => {
         order_id: 0,
         box_id: 0,
         order_name: "",
-        latest_delivery: "",
-        earliest_delivery: "",
         status: false
     };
 
