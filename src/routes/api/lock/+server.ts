@@ -7,7 +7,7 @@ import { json } from "@sveltejs/kit";
 
 // Requests for viewing all boxes (perhaps of a certain user, can be tweaked in the filters)
 
-export async function POST({ request }, locals: { supabase } ) {
+export async function POST({ request, locals } ) {
 	/* Handles Select requests for admin records. */
 	const filter = await request.json();
 
@@ -17,5 +17,5 @@ export async function POST({ request }, locals: { supabase } ) {
         // do something, i.e., negate the state of the box, mqtt shit
     // else, return fail
 
-	return json(await Box.selectBoxes(filter, supabase));
+	return json(await Box.selectBoxes(filter, locals.supabase));
 }

@@ -1,14 +1,18 @@
 <script lang=ts>
   import AddOrderScreen from "$lib/components/ordersComponents/addOrderScreen.svelte";
   import AddOrderForm from "$lib/components/ordersComponents/addOrderForm.svelte"; 
-  import { type OrderProcessed } from "$lib/utils/types";
   import { type OrderDBObj, type OrderFilter, type OrderResponse } from "$lib/classes/Order";
   import { OrderFilterStore } from "$lib/stores/Filters";
   import { browser } from "$app/environment";
   import { type RealtimeChannel } from '@supabase/supabase-js';
   import { supabaseFront } from '$lib/stores/SupabaseClient.js';
+  import { SvelteComponent, onDestroy, onMount } from "svelte";
+	import { table } from "console";
+
 
   export let data;
+
+  let orders: { id: number; name: string; status: boolean; latestDeliveryDate: string }[] = [];
 
   //for filters
 	$: {
@@ -18,7 +22,7 @@
   let channel: RealtimeChannel;
 
   onMount(() => {
-    let orderObjects = data.orderRaws;
+    let orderObjects = data.orders; // Access orders from the data prop
     mapOrderDatabaseObjects(orderObjects);
 
     channel = $supabaseFront
@@ -48,9 +52,6 @@
     }
   }
 
-  import { SvelteComponent, onDestroy, onMount } from "svelte";
-	import { table } from "console";
-
   let deleteResponse: OrderResponse;
 	let updateResponse: OrderResponse;
 	let selectResponse: OrderResponse;
@@ -68,7 +69,7 @@
     });
 
     selectResponse = await response.json();
-    mapOrderDatabaseObjects(selectResponse.orderRaws);
+    mapOrderDatabaseObjects(selectResponse.OrderRawObjs);
   }
 
   async function handleDelete(event: CustomEvent) {
@@ -81,40 +82,36 @@
     });
 
     deleteResponse = await response.json();
-    if (deleteResponse.success == true) {
-      //table.deleteEntryUI(); implement this sa component
-      console.log("deleted: ", deleteResponse.orderRaws);
+    if (deleteResponse.success) {
+      console.log("deleted: ", deleteResponse.OrderRawObjs);
     } else {
       console.log("Failed to delete order entry.");
     }
   }
 
   async function handleUpdate(event: CustomEvent) {
-		/* Handles Update event from TableRow by sending a PATCH request with 
-        payload requirement: order_id, 
-        optional: box_id, latest_delivery, earliest_delivery, status. */
+    /* Handles Update event from TableRow by sending a PATCH request with 
+       payload requirement: order_id, 
+       optional: box_id, latest_delivery, earliest_delivery, status. */
 
-		const response = await fetch('../../api/order', {
-			method: 'PATCH',
-			body: JSON.stringify(event.detail),
-			headers: {
-				'content-type': 'application/json'
-			}
-		});
+    const response = await fetch('../../api/order', {
+      method: 'PATCH',
+      body: JSON.stringify(event.detail),
+      headers: {
+        'content-type': 'application/json'
+      }
+    });
 
-		updateResponse = await response.json();
-		if (updateResponse.success) {
-			//table.updateEntryUI(); // implement this
-			console.log("updated: ", updateResponse.orderRaws);
+    updateResponse = await response.json();
+    if (updateResponse.success) {
+      console.log("updated: ", updateResponse.OrderRawObjs);
       handleSelect($OrderFilterStore);
-		} else {
-      console.error("Failed to delete order entry.");
-		}
-	}
+    } else {
+      console.error("Failed to update order entry.");
+    }
+  }
 
   let showAddOrderScreen = false;
-
-  let orders: { id: number; name: string; status: boolean; latestDeliveryDate: string }[] = [];
 
   const toggleAddOrderScreen = () => {
     showAddOrderScreen = !showAddOrderScreen;
@@ -170,20 +167,17 @@
       <div class="orderListContainer">
         {#each orders as order}
           <h2>{order.name}</h2>
-          <p>{order.status}</p>
+          <p>{order.status ? 'Active' : 'Inactive'}</p>
           <p>{order.latestDeliveryDate}</p>
         {/each}
       </div>
-      <button class="addOrderButton" on:click={toggleAddOrderScreen}
-        >Add order</button
-      >
+      <button class="addOrderButton" on:click={toggleAddOrderScreen}>Add order</button>
     </div>
   </div>
 </main>
 
 <style>
   main {
-    /* text-align: center; */
     padding: 0;
     max-width: 240px;
     margin: 0 auto;
