@@ -40,6 +40,20 @@
       .update({password: order.password, status: order.status})
       .eq("order_id", order.order_id)
       await getAllOrders();
+      
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  const deleteOrder = async (order) => {
+    try {
+      const { data, error } = await supabase
+      .from("order")
+      .delete()
+      .eq("order_id", order.order_id)
+      await getAllOrders();
+      
     } catch (err) {
       console.log(err);
     }
@@ -75,7 +89,7 @@
     <div class="middleContainer">
       <div class="orderListContainer">
         {#each orders as order}
-          <OrderContainer {order} {updateOrder} />
+          <OrderContainer {order} {updateOrder} {deleteOrder} />
         {:else}
           <p>No Orders Yet</p>
         {/each}

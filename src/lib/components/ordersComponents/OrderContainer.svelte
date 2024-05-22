@@ -1,5 +1,5 @@
 <script>
-    export let order, updateOrder;
+    export let order, updateOrder, deleteOrder;
 </script>
 
 <div class="OrderContainer">
@@ -22,7 +22,7 @@
         updateOrder(order);
     }}
     />
-    <button>Delete</button>
+    <button on:click={() => deleteOrder(order)}>Delete</button>
     <button>Update</button>
 </div>
 
