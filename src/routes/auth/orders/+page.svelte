@@ -7,6 +7,8 @@
   import { onMount } from "svelte";
   import { createClient } from "@supabase/supabase-js";
   import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public'
+  import { v4 as uuidv4 } from 'uuid';
+
 
   export let data;
 
@@ -61,7 +63,7 @@
   }
   
   const handleAddOrderFormSubmit = async (e:CustomEvent) => {
-    let newOrderId = orders.length + 1;
+    let newOrderId = uuidv4();
     const orderDetails = e.detail;
     try{
       const { data, error } = await supabase

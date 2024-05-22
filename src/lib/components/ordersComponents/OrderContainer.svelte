@@ -80,18 +80,19 @@
 
 <style>
     .OrderContainer {
-        display: flex;
-        flex-direction: column;
-        border: 2px solid #ccc; /* Adjust border width and color */
-        border-radius: 8px; /* Add border radius for rounded corners */
-        padding: 10px; /* Add padding to create space between content and border */
-        margin-bottom: 10px; /* Add margin to create space between Order containers */
+    display: flex;
+    flex-direction: column;
+    border: 2px solid #ccc; /* Adjust border width and color */
+    border-radius: 8px; /* Add border radius for rounded corners */
+    padding: 10px; /* Add padding to create space between content and border */
+    margin-bottom: 10px; /* Add margin to create space between Order containers */
     }
 
     .OrderContainer h2,
-        .OrderContainer p {
-        margin: 5px 0; /* Add margin between lines */
+    .OrderContainer p {
+    margin: 5px 0; /* Add margin between lines */
     }
+
 
     button {
         color: white; /* Change font color for buttons */
@@ -114,8 +115,7 @@
         text-decoration: line-through;
     }
 
-    input[type="text"],
-	input[type="submit"] {
+    input[type="text"] {
 		color: blue; /* Change font color for input text and submit button */
 	}
 
