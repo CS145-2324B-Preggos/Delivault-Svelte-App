@@ -66,7 +66,7 @@
             <input 
                 type="text" 
                 id="order-courier"
-                bind:value={editedPassword} 
+                bind:value={editedCourier} 
                 placeholder="Password"
             />
         </label>

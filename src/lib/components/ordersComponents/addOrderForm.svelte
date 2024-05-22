@@ -96,8 +96,8 @@
 			<div>
 			  <button type="button" on:click={handleCancel}>Cancel</button>
 			</div>
-			<div>
-			  <input type="submit" value="Submit" />
+			<div class="submitButton">
+				<input type="submit" value="Submit" />
 			</div>
 		  </div>
 	</form>
@@ -143,8 +143,18 @@
 
 	/* Style buttons */
 	button {
-		color: black; /* Change font color for buttons */
-	}
+        color: black; /* Change font color for buttons */
+        border: 1px solid black; /* Add border */
+        padding: 8px 16px; /* Add padding for better visual appearance */
+        cursor: pointer; /* Add cursor pointer for better interaction */
+        border-radius: 4px; /* Add border radius for rounded corners */
+        background-color: transparent; /* Make background transparent */
+    }
+
+    /* Style buttons on hover */
+    button:hover {
+        background-color: #f0f0f0; /* Change background color on hover */
+    }
 
 	/* Style h4 elements */
 	h4 {
@@ -155,5 +165,17 @@
 	label {
 		color: rgb(113, 108, 98); /* Change font color for labels */
 	}
+
+	.submitButton input[type="submit"] {
+        border: 1px solid black; /* Add border */
+        padding: 8px 16px; /* Add padding */
+        border-radius: 4px; /* Add border radius */
+        cursor: pointer; /* Add cursor pointer */
+        background-color: transparent; /* Make background transparent */
+    }
+
+    .submitButton input[type="submit"]:hover {
+        background-color: #f0f0f0; /* Change background color on hover */
+    }
 
 </style>
