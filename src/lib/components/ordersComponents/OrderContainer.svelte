@@ -1,34 +1,122 @@
 <script>
     export let order, updateOrder, deleteOrder;
+    let isEditing = false;
+    let editedOrderName = order.order_name;
+    let editedPassword = order.password;
+
+    const startEditing = () => {
+        isEditing = true;
+    };
+
+    const confirmEdit = () => {
+        isEditing = false;
+        order.order_name = editedOrderName;
+        order.password = editedPassword;
+        updateOrder(order);
+    };
 </script>
 
-<div class="OrderContainer">
-    <input 
-    type="checkbox" 
-    checked={order.status} 
-    on:change={(e) => {
-        order.status = e.currentTarget.checked;
-        updateOrder(order)
-        }} 
-        />
-    <h2>{order.order_name}</h2>
-    <p>{order.status}</p>
-    <p>{order.password}</p>
-    <input 
-    type='text' 
-    value={order.password} 
-    on:input={(e) => {
-        order.password = e.currentTarget.value;
-        updateOrder(order);
-    }}
-    />
-    <button on:click={() => deleteOrder(order)}>Delete</button>
-    <button>Update</button>
+<div class="OrderContainer" class:delivered={order.status}>
+    {#if isEditing}
+        <label for="delivered-checkbox">
+            <input 
+                type="checkbox" 
+                id="delivered-checkbox"
+                checked={order.status} 
+                on:change={(e) => {
+                    order.status = e.currentTarget.checked;
+                    updateOrder(order);
+                }} 
+            />
+            Delivered?
+        </label>
+        <label for="order-name">
+            Order Name:
+            <input 
+                type="text" 
+                id="order-name"
+                bind:value={editedOrderName} 
+                placeholder="Order Name"
+            />
+        </label>
+        <label for="order-password">
+            Password:
+            <input 
+                type="text" 
+                id="order-password"
+                bind:value={editedPassword} 
+                placeholder="Password"
+            />
+        </label>
+    {:else}
+        <div>
+            <h2>Order Name:</h2>
+            <p>{order.order_name}</p>
+        </div>
+        <div>
+            <h2>Password:</h2>
+            <p>{order.password}</p>
+        </div>
+        <label for="delivered-checkbox">
+            <input 
+                type="checkbox" 
+                id="delivered-checkbox"
+                checked={order.status} 
+                on:change={(e) => {
+                    order.status = e.currentTarget.checked;
+                    updateOrder(order);
+                }} 
+            />
+            Delivered?
+        </label>
+    {/if}
+        <button on:click={() => deleteOrder(order)}>Delete</button>
+    {#if isEditing}
+        <button on:click={confirmEdit}>Confirm</button>
+    {:else}
+        <button on:click={startEditing}>Update</button>
+    {/if}
 </div>
 
 <style>
     .OrderContainer {
-      display: flex;
-      flex-direction: column;
+        display: flex;
+        flex-direction: column;
+        border: 2px solid #ccc; /* Adjust border width and color */
+        border-radius: 8px; /* Add border radius for rounded corners */
+        padding: 10px; /* Add padding to create space between content and border */
+        margin-bottom: 10px; /* Add margin to create space between Order containers */
     }
+
+    .OrderContainer h2,
+        .OrderContainer p {
+        margin: 5px 0; /* Add margin between lines */
+    }
+
+    button {
+        color: white; /* Change font color for buttons */
+        background-color: #808080; /* Gray background color */
+        border: none; /* Remove border */
+        padding: 8px 16px; /* Add padding for better visual appearance */
+        cursor: pointer; /* Add cursor pointer for better interaction */
+        border-radius: 4px; /* Add border radius for rounded corners */
+    }
+
+    /* Style buttons on hover */
+    button:hover {
+        background-color: #606060; /* Darken the background color on hover */
+    }
+
+    .delivered {
+        opacity: 0.5
+    }
+    .delivered input[type="text"] {
+        text-decoration: line-through;
+    }
+
+    input[type="text"],
+	input[type="submit"] {
+		color: blue; /* Change font color for input text and submit button */
+	}
+
 </style>

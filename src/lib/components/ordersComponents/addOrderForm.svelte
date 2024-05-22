@@ -26,7 +26,7 @@
 			password: passcode
 		};
 		console.log('Order Detail:', orderDetail);
-		
+
 		dispatch('addOrderFormSubmit', orderDetail);
 	};
 
@@ -137,7 +137,6 @@
 
 	/* Style input fields */
 	input[type="text"],
-	input[type="date"],
 	input[type="submit"] {
 		color: blue; /* Change font color for input text and submit button */
 	}

@@ -35,11 +35,14 @@
   const updateOrder = async (order: OrderDBObj) => {
     try {
       const { data, error } = await supabase
-      .from("order")
-      .update({password: order.password, status: order.status})
-      .eq("order_id", order.order_id)
+        .from("order")
+        .update({
+            order_name: order.order_name,
+            password: order.password,
+            status: order.status
+          })      
+        .eq("order_id", order.order_id)
       await getAllOrders();
-      
     } catch (err) {
       console.log(err);
     }
@@ -48,11 +51,10 @@
   const deleteOrder = async (order: OrderDBObj) => {
     try {
       const { data, error } = await supabase
-      .from("order")
-      .delete()
-      .eq("order_id", order.order_id)
+        .from("order")
+        .delete()
+        .eq("order_id", order.order_id)
       await getAllOrders();
-      
     } catch (err) {
       console.log(err);
     }
@@ -98,20 +100,15 @@
           <p>No Orders Yet</p>
         {/each}
       </div>
-
-
-      <button class="addOrderButton" on:click={toggleAddOrderScreen}
-        >Add order</button
-      >
-
-
     </div>
+    <button class="addOrderButton" on:click={toggleAddOrderScreen}>Add orders</button>
   </div>
 </main>
 
 <style>
   main {
-    /* text-align: center; */
+    display: flex;
+    justify-content: center;
     padding: 0;
     max-width: 240px;
     margin: 0 auto;
@@ -133,5 +130,19 @@
       margin: 10px;
       align-self: flex-start;
     }
+  }
+
+  .addOrderButton {
+    color: white;
+    background-color: #808080;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 20px; /* Add margin to create space between the button and the orders */
+  }
+
+  .addOrderButton:hover {
+    background-color: #606060;
   }
 </style>
