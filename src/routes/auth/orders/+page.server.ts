@@ -1,22 +1,16 @@
 import { Order } from "$lib/classes/Order";
 import type { PageServerLoad } from './$types';
+import { createClient } from "@supabase/supabase-js";
+import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public'
 
-export const load: PageServerLoad = async ({ locals }) => {
-    // Fetch orders with an empty filter or a specific filter if needed
-    const filter = {
-        order_id: 0,
-        box_id: 0,
-        order_name: "",
-        status: false
-    };
+let supabase = createClient(
+    PUBLIC_SUPABASE_URL,
+    PUBLIC_SUPABASE_ANON_KEY
+)
 
-    const response = await Order.selectOrders(filter, locals.supabase);
-
-    if (!response.success) {
-        throw new Error(response.error || "Failed to fetch orders.");
-    }
-
+export const load: PageServerLoad = async () => {
+    const { data } = await supabase.from("order").select();
     return {
-        orders: response.OrderRawObjs
+      orders: data ?? [],
     };
-};
+}

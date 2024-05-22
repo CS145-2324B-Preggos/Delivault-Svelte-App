@@ -1,5 +1,7 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { type OrderDBObj, type OrderFilter, type OrderResponse } from "$lib/classes/Order";
+import { supabaseFront } from "$lib/stores/SupabaseClient";
+import { createClient } from "@supabase/supabase-js";
 
 const success: OrderResponse = {
     success: true,
@@ -7,7 +9,12 @@ const success: OrderResponse = {
     error: null
 };
 
-export async function selectOrderDB(filter: Partial<OrderFilter>, supabase: SupabaseClient): Promise<OrderResponse> {
+let supabase = createClient(
+    'https://agdecwzqfgqljiqmrljx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFnZGVjd3pxZmdxbGppcW1ybGp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTQ1NTMwODYsImV4cCI6MjAzMDEyOTA4Nn0.WoEITEshKx5WF5vq_V9ICAdAnfP0m3mwxxRi_1ZFDMk'
+)
+
+export async function selectOrderDB(filter: Partial<OrderFilter>): Promise<OrderResponse> {
     let query = supabase
         .from('order')
         .select('order_id, box_id, order_name, status, password');
@@ -49,7 +56,6 @@ export async function selectOrderDB(filter: Partial<OrderFilter>, supabase: Supa
                 order_id: row.order_id,
                 box_id: row.box_id,
                 order_name: row.order_name,
-                // Assuming password is not part of the response
                 password: '', 
                 status: row.status
             });
@@ -62,7 +68,7 @@ export async function selectOrderDB(filter: Partial<OrderFilter>, supabase: Supa
     };
 }
 
-export async function insertOrderDB(order: OrderDBObj, supabase: SupabaseClient): Promise<OrderResponse> {
+export async function insertOrderDB(order: OrderDBObj): Promise<OrderResponse> {
     const { error } = await supabase.from('order').insert(order);
 
     if (error) {
@@ -77,8 +83,8 @@ export async function insertOrderDB(order: OrderDBObj, supabase: SupabaseClient)
 }
 
 // Only works for checking a single order
-async function checkOrderExistsDB(filter: OrderFilter, supabase: SupabaseClient): Promise<OrderResponse> {
-    const orderDB = await selectOrderDB(filter, supabase);
+async function checkOrderExistsDB(filter: OrderFilter): Promise<OrderResponse> {
+    const orderDB = await selectOrderDB(filter);
 
     if (orderDB.success && orderDB.OrderRawObjs?.length === 1) {
         return success;
@@ -91,7 +97,7 @@ async function checkOrderExistsDB(filter: OrderFilter, supabase: SupabaseClient)
     }
 }
 
-export async function updateOrderDB(order: OrderDBObj, supabase: SupabaseClient): Promise<OrderResponse> {
+export async function updateOrderDB(order: OrderDBObj): Promise<OrderResponse> {
     // Updates an order entry based on their order_id
     // order_id should not be updated
     const orderCheck = await checkOrderExistsDB({
@@ -99,7 +105,7 @@ export async function updateOrderDB(order: OrderDBObj, supabase: SupabaseClient)
         box_id: order.box_id,
         order_name: order.order_name,
         status: order.status
-    }, supabase);
+    });
 
     if (!orderCheck.success) {
         return orderCheck;
@@ -129,13 +135,13 @@ export async function updateOrderDB(order: OrderDBObj, supabase: SupabaseClient)
     return success;
 }
 
-export async function deleteOrderDB(orderID: number, supabase: SupabaseClient): Promise<OrderResponse> {
+export async function deleteOrderDB(orderID: number): Promise<OrderResponse> {
     const orderCheck = await checkOrderExistsDB({
         order_id: orderID,
         box_id: 0,
         order_name: "",
         status: false
-    }, supabase);
+    });
 
     if (!orderCheck.success) {
         return orderCheck;
