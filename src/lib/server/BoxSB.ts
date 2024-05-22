@@ -12,11 +12,11 @@ const success: BoxResponse = {
 export async function selectBoxDB(filter: BoxFilter | null, supabase: SupabaseClient): Promise<BoxResponse> {
     let query;
     if (filter == null) {
-        let query = supabase
+        query = supabase
         .from('box')
         .select();
     } else{
-        let query = supabase
+        query = supabase
         .from('box')
         .select('box_id, user_id');
 
