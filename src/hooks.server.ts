@@ -5,6 +5,7 @@ import { sequence } from '@sveltejs/kit/hooks'
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public'
 import { MQTT_BROKER_URL, MQTT_BROKER_PRT, MQTT_USERNAME, MQTT_PASSWORD } from '$env/static/private'
 import mqtt, { type IClientOptions } from 'mqtt'
+import { onReceived } from '$lib/server/MQTT'
 
 // On server startup, set up the client
 
@@ -15,11 +16,12 @@ const options: IClientOptions = {
   username: MQTT_USERNAME,
   password: MQTT_PASSWORD,
   keepalive: 15,
-};
+}
 
 // Initialize and connect the mqtt client
-const client = mqtt.connect(options);
-client.publish("sys/log", "Hello, world!");
+const client = mqtt.connect(options)
+client.subscribe('cs145/test')
+client.publish("sys/log", "Hello, world!")
 
 client.on(
   'connect',
@@ -33,7 +35,12 @@ client.on(
 
 client.on(
   'message',
-  (topic: string, message) => console.log('Received message:', topic, message)
+  onReceived
+)
+
+client.on(
+  'message',
+  () => client.off('message', onReceived)
 )
 
 // Before the server is killed, disconnect the client 
