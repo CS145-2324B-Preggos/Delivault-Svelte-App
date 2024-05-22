@@ -4,7 +4,7 @@
 	let dispatch = createEventDispatcher();
 
 	let orderName: string = '';
-	let expectedDeliveryDate: string = '';
+	// let expectedDeliveryDate: string = '';
 	let courierContactDetails: string = '';
 	let passcode: string = '';
 	let isDisabled: boolean = false;
@@ -21,7 +21,7 @@
 
 		const orderDetail = {
 			order_name: orderName,
-			expected_delivery_date: expectedDeliveryDate,
+			// expected_delivery_date: expectedDeliveryDate,
 			courier_contact_details: courierContactDetails,
 			password: passcode
 		};

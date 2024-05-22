@@ -3,6 +3,10 @@
     let isEditing = false;
     let editedOrderName = order.order_name;
     let editedPassword = order.password;
+    let editedCourier = order.courier_details;
+    let originalOrderName = order.order_name;
+    let originalPassword = order.password;
+    let originalCourier = order.courier_details;
 
     const startEditing = () => {
         isEditing = true;
@@ -12,7 +16,16 @@
         isEditing = false;
         order.order_name = editedOrderName;
         order.password = editedPassword;
+        order.courier_details = editedCourier;
         updateOrder(order);
+    };
+
+    const cancelEdit = () => {
+        isEditing = false;
+        // Reset edited values to original values
+        editedOrderName = originalOrderName;
+        editedPassword = originalPassword;
+        editedCourier = originalCourier;
     };
 </script>
 
@@ -48,6 +61,15 @@
                 placeholder="Password"
             />
         </label>
+        <label for="order-courier">
+            Courier contact details:
+            <input 
+                type="text" 
+                id="order-courier"
+                bind:value={editedPassword} 
+                placeholder="Password"
+            />
+        </label>
     {:else}
         <div>
             <h2>Order Name:</h2>
@@ -56,6 +78,10 @@
         <div>
             <h2>Password:</h2>
             <p>{order.password}</p>
+        </div>
+        <div>
+            <h2>Courier contact details:</h2>
+            <p>{order.courier_details}</p>
         </div>
         <label for="delivered-checkbox">
             <input 
@@ -73,6 +99,7 @@
         <button on:click={() => deleteOrder(order)}>Delete</button>
     {#if isEditing}
         <button on:click={confirmEdit}>Confirm</button>
+        <button on:click={cancelEdit}>Cancel</button>
     {:else}
         <button on:click={startEditing}>Update</button>
     {/if}

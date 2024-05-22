@@ -41,6 +41,7 @@
         .update({
             order_name: order.order_name,
             password: order.password,
+            courier_details: order.courier_details,
             status: order.status
           })      
         .eq("order_id", order.order_id)
@@ -61,9 +62,14 @@
       console.log(err);
     }
   }
-  
+  const generateIntegerUUID = () => {
+    const uuid = uuidv4();
+    // Remove hyphens and convert hexadecimal string to integer
+    const hexWithoutHyphens = uuid.replace(/-/g, '');
+    return parseInt(hexWithoutHyphens.substring(0, 8), 16);
+  };
   const handleAddOrderFormSubmit = async (e:CustomEvent) => {
-    let newOrderId = uuidv4();
+    let newOrderId = generateIntegerUUID();
     const orderDetails = e.detail;
     try{
       const { data, error } = await supabase
@@ -73,13 +79,15 @@
           box_id: 0, // for now
           order_name: orderDetails.order_name,
           password: orderDetails.password,
+          courier_details: orderDetails.courier_details,
           status: false
         });
       console.log(e.detail);
+      console.log("order id: ", newOrderId);
       showAddOrderScreen = false;
       await getAllOrders();
     } catch (err) {
-      console.log(err);
+      console.log(err.response.body);
     }
   };
 </script>

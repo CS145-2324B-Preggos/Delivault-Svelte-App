@@ -8,6 +8,7 @@ export type OrderDBObj = {
     box_id: number;
     order_name: string;
     password: string;
+    courier_details: string;
     status: boolean;
 }
 
@@ -33,6 +34,7 @@ export class Order {
             box_id: order.box_id,
             order_name: order.order_name,
             password: order.password,
+            courier_details: order.courier_details,
             status: order.status
 		};
     }
