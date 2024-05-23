@@ -35,12 +35,7 @@ client.on(
 
 client.on(
   'message',
-  onReceived
-)
-
-client.on(
-  'message',
-  () => client.off('message', onReceived)
+  (topic: string, payload: Buffer) => onReceived(client, topic, payload)
 )
 
 // Before the server is killed, disconnect the client 
