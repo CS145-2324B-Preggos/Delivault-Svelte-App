@@ -2,6 +2,7 @@
 
 import { error } from "@sveltejs/kit";
 import type { MqttClient } from "mqtt";
+import type { EventEmitter } from "stream";
 
 export enum HardwareState {
     locked,
@@ -14,9 +15,21 @@ export type MQTTResponse = {
     error: string | null
 }
 
+// TODO: implement this based on the obvious integrated eventEmitter solution + basti's fucking article https://dev.to/somedood/promises-and-events-some-pitfalls-and-workarounds-elp
+// wait until an acknowledgement for the message comes in
+function waitForAck(target: EventEmitter, message: string) {
+    
+}
+
 // helper for when any control message needs to be sent to a box
 export function sendControlMessage(mqtt: MqttClient, box_id: string, message: 'lock' | 'unlock' | 'valid' | 'invalid'): MQTTResponse {
     mqtt.publish(`ident/${box_id}/in`, message);
+    return {success: true, new_state: HardwareState.locked, error: null};
+}
+
+// helper for sending the designated masterkey to a box
+export function sendMasterkey(mqtt: MqttClient, box_id: string, key: string): MQTTResponse {
+    mqtt.publish(`ident/${box_id}/in`, `masterkey ${key}`);
     return {success: true, new_state: HardwareState.locked, error: null};
 }
 
