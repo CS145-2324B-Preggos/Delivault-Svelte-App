@@ -12,7 +12,7 @@ export enum HardwareState {
 export type MQTTResponse = {
     success: boolean,
     new_state: HardwareState,
-    error: string | null
+    error: string
 }
 
 // TODO: implement this based on the obvious integrated eventEmitter solution + basti's fucking article https://dev.to/somedood/promises-and-events-some-pitfalls-and-workarounds-elp
@@ -28,8 +28,8 @@ async function waitForAck(target: EventEmitter) {
 
         // if no ack heard, reject
         setTimeout(
-            reject,
-            7500
+            () => { reject("ACKTIMEOUT"); console.log("ACKTIMEOUT"); },
+            5000
         )
     })
 }
@@ -48,21 +48,27 @@ async function prepareForAck(mqtt: MqttClient, expected_topic: string, expected_
         'message',
         detectorCallback
     )
-    waitForAck(notifier);
+    return waitForAck(notifier);
 }
 
 // helper for when any control message needs to be sent to a box
 export async function sendControlMessage(mqtt: MqttClient, box_id: string, message: 'lock' | 'unlock' | 'valid' | 'invalid'): Promise<MQTTResponse> {
     mqtt.publish(`ident/${box_id}/in`, message);
-    prepareForAck(mqtt, `ident/${box_id}/out`, `ack ${message}`);
-    return {success: true, new_state: HardwareState.locked, error: null};
+    let mqttResponse = {success: true, new_state: HardwareState.locked, error: "OK"};
+    await prepareForAck(mqtt, `ident/${box_id}/out`, `ack ${message}`).catch(
+        ( reason ) => mqttResponse = {success: false, new_state: HardwareState.unlocked, error: `${reason}: No acknowledgement received`}
+    );
+    return mqttResponse;
 }
 
 // helper for sending the designated masterkey to a box
 export async function sendMasterkey(mqtt: MqttClient, box_id: string, key: string): Promise<MQTTResponse> {
     mqtt.publish(`ident/${box_id}/in`, `masterkey ${key}`);
-    prepareForAck(mqtt, `ident/${box_id}/out`, 'ack masterkey');
-    return {success: true, new_state: HardwareState.locked, error: null};
+    let mqttResponse = {success: true, new_state: HardwareState.unlocked, error: "OK"};
+    await prepareForAck(mqtt, `ident/${box_id}/out`, 'ack masterkey').catch(
+        ( reason ) => mqttResponse = {success: false, new_state: HardwareState.locked, error: `${reason}: No acknowledgement received`}
+    );
+    return mqttResponse;
 }
 
 function verifyPasscode(passcode: string | null): boolean {
