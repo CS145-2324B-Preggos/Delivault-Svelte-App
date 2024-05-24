@@ -1,6 +1,16 @@
 import { Order } from "$lib/classes/Order";
+import type { PageServerLoad } from './$types';
+import { createClient } from "@supabase/supabase-js";
+import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public'
 
-export async function load() {
-    /* Loads order records from the DB when page is created. */
-    return Order.selectOrders();
+let supabase = createClient(
+    PUBLIC_SUPABASE_URL,
+    PUBLIC_SUPABASE_ANON_KEY
+)
+
+export const load: PageServerLoad = async () => {
+    const { data } = await supabase.from("order").select();
+    return {
+      orders: data ?? [],
+    };
 }

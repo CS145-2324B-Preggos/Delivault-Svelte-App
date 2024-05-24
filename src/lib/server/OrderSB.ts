@@ -1,47 +1,45 @@
-import { SupabaseClient, createClient } from "@supabase/supabase-js";
+import { type SupabaseClient } from "@supabase/supabase-js";
 import { type OrderDBObj, type OrderFilter, type OrderResponse } from "$lib/classes/Order";
-import { format } from "path";
+import { supabaseFront } from "$lib/stores/SupabaseClient";
+import { createClient } from "@supabase/supabase-js";
 
 const success: OrderResponse = {
-	success: true,
-	OrderRawObjs: null,
-	error: null
+    success: true,
+    OrderRawObjs: null,
+    error: null
 };
 
-export async function selectOrderDB(filter: OrderFilter, supabase: SupabaseClient): Promise<OrderResponse> {
+let supabase = createClient(
+    'https://agdecwzqfgqljiqmrljx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFnZGVjd3pxZmdxbGppcW1ybGp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTQ1NTMwODYsImV4cCI6MjAzMDEyOTA4Nn0.WoEITEshKx5WF5vq_V9ICAdAnfP0m3mwxxRi_1ZFDMk'
+)
+
+export async function selectOrderDB(filter: Partial<OrderFilter>): Promise<OrderResponse> {
     let query = supabase
-    .from('order')
-    .select('order_id, box_id, latest_delivery, earliest_delivery, status');
+        .from('order')
+        .select('order_id, box_id, order_name, status, password');
 
-    if (filter.order_id != null){
-        query = query.eq('order_id',filter.order_id);
+    if (filter.order_id != null) {
+        query = query.eq('order_id', filter.order_id);
     }
 
-    if (filter.box_id != null){
-        query = query.eq('box_id',filter.box_id);
+    if (filter.box_id != null) {
+        query = query.eq('box_id', filter.box_id);
     }
 
-    if (filter.order_name != null){
-        query = query.eq('order_id',filter.box_id);
+    if (filter.order_name != null) {
+        query = query.eq('order_name', filter.order_name);
     }
 
-    if (filter.latest_delivery != null){
-        query = query.eq('latest_delivery',filter.latest_delivery);
+    if (filter.status != null) {
+        query = query.eq('status', filter.status);
     }
 
-    if (filter.earliest_delivery != null){
-        query = query.eq('earliest_delivery',filter.earliest_delivery);
-    }
-
-    if (filter.status != null){
-        query = query.eq('status',filter.status);
-    }
-
-    // execute query
+    // Execute query
     const { data, error } = await query;
 
-    // error catch
-    if (error){
+    // Error catch
+    if (error) {
         return {
             success: false,
             OrderRawObjs: null,
@@ -49,21 +47,18 @@ export async function selectOrderDB(filter: OrderFilter, supabase: SupabaseClien
         };
     }
 
-    // format query into OrderDBObj
-
+    // Format query into OrderDBObj
     const formattedData: OrderDBObj[] = [];
 
     if (data != null) {
-        for (const row of data){
+        for (const row of data) {
             formattedData.push({
                 order_id: row.order_id,
                 box_id: row.box_id,
-                order_name: row.order_id,
-                latest_delivery: row.latest_delivery,
-                earliest_delivery: row.earliest_delivery,
-                password: row.password,
+                order_name: row.order_name,
+                password: '', 
                 status: row.status
-            })
+            });
         }
     }
     return {
@@ -73,7 +68,7 @@ export async function selectOrderDB(filter: OrderFilter, supabase: SupabaseClien
     };
 }
 
-export async function insertOrderDB(order: OrderDBObj, supabase: SupabaseClient): Promise<OrderResponse> {
+export async function insertOrderDB(order: OrderDBObj): Promise<OrderResponse> {
     const { error } = await supabase.from('order').insert(order);
 
     if (error) {
@@ -81,19 +76,19 @@ export async function insertOrderDB(order: OrderDBObj, supabase: SupabaseClient)
             success: false,
             OrderRawObjs: null,
             error: error.message
-        }
+        };
     }
 
     return success;
 }
 
-// only works for checking a single order
-async function checkOrderExistsDB(filter: OrderFilter, supabase: SupabaseClient): Promise<OrderResponse> {
-    const orderDB = await selectOrderDB(filter, supabase);
+// Only works for checking a single order
+async function checkOrderExistsDB(filter: OrderFilter): Promise<OrderResponse> {
+    const orderDB = await selectOrderDB(filter);
 
-    if (orderDB.success && orderDB.OrderRawObjs?.length == 1){
+    if (orderDB.success && orderDB.OrderRawObjs?.length === 1) {
         return success;
-    } else{
+    } else {
         return {
             success: false,
             OrderRawObjs: null,
@@ -102,27 +97,25 @@ async function checkOrderExistsDB(filter: OrderFilter, supabase: SupabaseClient)
     }
 }
 
-export async function updateOrderDB(order: OrderDBObj, supabase: SupabaseClient): Promise<OrderResponse> {
-    // updates a order entry based on their order_id
+export async function updateOrderDB(order: OrderDBObj): Promise<OrderResponse> {
+    // Updates an order entry based on their order_id
     // order_id should not be updated
     const orderCheck = await checkOrderExistsDB({
         order_id: order.order_id,
         box_id: order.box_id,
         order_name: order.order_name,
-        latest_delivery: order.latest_delivery,
-        earliest_delivery: order.earliest_delivery,
         status: order.status
-    }, supabase);
+    });
 
     if (!orderCheck.success) {
         return orderCheck;
     }
 
-    // only permitted types to be updated (for now)
-	const updateObj: { [key: string]: number } = {};
+    // Only permitted types to be updated (for now)
+    const updateObj: { [key: string]: number | string | boolean } = {};
 
     for (const [key, value] of Object.entries(order)) {
-        if (value && key != 'order_id'){ // prevents order_id to be updated
+        if (value && key !== 'order_id') { // Prevents order_id from being updated
             updateObj[key] = value;
         }
     }
@@ -130,7 +123,7 @@ export async function updateOrderDB(order: OrderDBObj, supabase: SupabaseClient)
     const { error } = await supabase
         .from('order')
         .update(updateObj)
-        .eq('order_id', order.order_id)
+        .eq('order_id', order.order_id);
 
     if (error) {
         return {
@@ -142,19 +135,17 @@ export async function updateOrderDB(order: OrderDBObj, supabase: SupabaseClient)
     return success;
 }
 
-export async function deleteOrderDB(orderID: number, supabase: SupabaseClient): Promise<OrderResponse> {
+export async function deleteOrderDB(orderID: number): Promise<OrderResponse> {
     const orderCheck = await checkOrderExistsDB({
         order_id: orderID,
         box_id: 0,
         order_name: "",
-        latest_delivery: "",
-        earliest_delivery: "",
         status: false
-    }, supabase);
+    });
 
     if (!orderCheck.success) {
-		return orderCheck;
-	}
+        return orderCheck;
+    }
 
     const { error } = await supabase.from('order').delete().eq('order_id', orderID);
 
@@ -163,7 +154,7 @@ export async function deleteOrderDB(orderID: number, supabase: SupabaseClient): 
             success: false,
             OrderRawObjs: null,
             error: error.message
-        }
+        };
     }
 
     return success;

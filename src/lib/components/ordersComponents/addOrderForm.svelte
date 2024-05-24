@@ -4,7 +4,7 @@
 	let dispatch = createEventDispatcher();
 
 	let orderName: string = '';
-	let expectedDeliveryDate: string = '';
+	// let expectedDeliveryDate: string = '';
 	let courierContactDetails: string = '';
 	let passcode: string = '';
 	let isDisabled: boolean = false;
@@ -13,18 +13,20 @@
 
 	let handleSubmit = () => {
 		// validation code
-		if (!orderName || !expectedDeliveryDate || !courierContactDetails || !passcode) {
+		if (!orderName || !courierContactDetails || !passcode) {
 			errorMessage = 'Please fill out all fields before submitting.';
 			showErrorMessage = true;
 			return;
 		}
 
 		const orderDetail = {
-			orderName,
-			expectedDeliveryDate,
-			courierContactDetails,
-			passcode
+			order_name: orderName,
+			// expected_delivery_date: expectedDeliveryDate,
+			courier_contact_details: courierContactDetails,
+			password: passcode
 		};
+		console.log('Order Detail:', orderDetail);
+
 		dispatch('addOrderFormSubmit', orderDetail);
 	};
 
@@ -61,14 +63,14 @@
 			bind:value={orderName}
 			on:input={hideErrorMessage}
 		/>
-		<label for="expectedDeliveryDate">Expected Delivery Date</label>
+		<!-- <label for="expectedDeliveryDate">Expected Delivery Date</label>
 		<input
 			type="date"
 			id="expectedDeliveryDate"
 			placeholder="Expected Delivery Date"
 			on:input={hideErrorMessage}
 			bind:value={expectedDeliveryDate}
-		/>
+		/> -->
 		<label for="courierContactDetails">Courier Contact Details</label>
 		<input
 			type="text"
@@ -91,9 +93,13 @@
 			/>
 		</div>
 		<div class="submitSegment">
-			<button type="button" on:click={handleCancel}>Cancel</button>
-			<input type="submit" value="Submit" />
-		</div>
+			<div>
+			  <button type="button" on:click={handleCancel}>Cancel</button>
+			</div>
+			<div class="submitButton">
+				<input type="submit" value="Submit" />
+			</div>
+		  </div>
 	</form>
 	{#if showErrorMessage}
 		<p class="errorMessage">{errorMessage}</p>
@@ -105,6 +111,7 @@
 		display: flex;
 		margin: 10px;
 		justify-content: center;
+		gap: 20px;
 	}
 
 	.passcodeSegment {
@@ -127,4 +134,48 @@
 	.errorMessage {
 		color: red;
 	}
+
+	/* Style input fields */
+	input[type="text"],
+	input[type="submit"] {
+		color: blue; /* Change font color for input text and submit button */
+	}
+
+	/* Style buttons */
+	button {
+        color: black; /* Change font color for buttons */
+        border: 1px solid black; /* Add border */
+        padding: 8px 16px; /* Add padding for better visual appearance */
+        cursor: pointer; /* Add cursor pointer for better interaction */
+        border-radius: 4px; /* Add border radius for rounded corners */
+        background-color: transparent; /* Make background transparent */
+    }
+
+    /* Style buttons on hover */
+    button:hover {
+        background-color: #f0f0f0; /* Change background color on hover */
+    }
+
+	/* Style h4 elements */
+	h4 {
+    color: black; /* Change font color for h4 */
+	}
+
+	/* Style label elements */
+	label {
+		color: rgb(113, 108, 98); /* Change font color for labels */
+	}
+
+	.submitButton input[type="submit"] {
+        border: 1px solid black; /* Add border */
+        padding: 8px 16px; /* Add padding */
+        border-radius: 4px; /* Add border radius */
+        cursor: pointer; /* Add cursor pointer */
+        background-color: transparent; /* Make background transparent */
+    }
+
+    .submitButton input[type="submit"]:hover {
+        background-color: #f0f0f0; /* Change background color on hover */
+    }
+
 </style>

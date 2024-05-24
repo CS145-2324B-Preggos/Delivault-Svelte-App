@@ -5,6 +5,42 @@ import { sequence } from '@sveltejs/kit/hooks'
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public'
 import { MQTT_BROKER_URL, MQTT_BROKER_PRT, MQTT_USERNAME, MQTT_PASSWORD } from '$env/static/private'
 import mqtt, { type IClientOptions } from 'mqtt'
+import { onReceived } from '$lib/server/MQTT'
+
+// On server startup, set up the client
+
+const options: IClientOptions = {
+  host: MQTT_BROKER_URL,
+  port: parseInt(MQTT_BROKER_PRT),
+  protocol: 'mqtts',
+  username: MQTT_USERNAME,
+  password: MQTT_PASSWORD,
+  keepalive: 15,
+}
+
+// Initialize and connect the mqtt client
+const client = mqtt.connect(options)
+client.subscribe('cs145/test')
+client.publish("sys/log", "Hello, world!")
+
+client.on(
+  'connect',
+  () => console.log("Connected the server to the broker!")
+)
+
+client.on(
+  'error',
+  (mqtt_err) => error(500, mqtt_err.message)
+)
+
+client.on(
+  'message',
+  (topic: string, payload: Buffer) => onReceived(client, topic, payload)
+)
+
+// Before the server is killed, disconnect the client 
+
+process.on('exit', () => client.end());
 
 const supabase: Handle = async ({ event, resolve }) => {
   /**
@@ -83,33 +119,9 @@ const authGuard: Handle = async ({ event, resolve }) => {
 
 const mqttClient: Handle = async({event, resolve}) => {
   if(!event.locals.session || !event.locals.user) return resolve(event)
-  
-  const options: IClientOptions = {
-    host: MQTT_BROKER_URL,
-    port: parseInt(MQTT_BROKER_PRT),
-    protocol: 'mqtts',
-    username: MQTT_USERNAME,
-    password: MQTT_PASSWORD,
-  }
-
-  const client = await mqtt.connectAsync(options)
-  
-  client.on(
-    'connect',
-    () => console.log("Connected the server to the broker!")
-  )
-
-  client.on(
-    'error',
-    (mqtt_err) => error(500, mqtt_err.message)
-  )
-
-  client.on(
-    'message',
-    (topic: string, message) => console.log('Received message:', topic, message)
-  )
 
   event.locals.mqttClient = client
+  client.publish("sys/log", "Hello, world!")
 
   return resolve(event)
 }
