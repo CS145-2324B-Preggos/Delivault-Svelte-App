@@ -29,6 +29,7 @@
     try{
       let { data, error } = await supabase.from("order").select();
       orders = data;
+      console.log(orders);
     } catch (err) {
       console.log(err)
     }
