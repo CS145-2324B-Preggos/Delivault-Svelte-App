@@ -11,9 +11,18 @@
 	import { goto, invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import AppHeaderAuthComponent from '$lib/components/AppHeaderAuthComponent.svelte';
+	import Sidebar from '$lib/components/Sidebar.svelte';
+
+	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 
 	export let data;
 	$: ({ session, supabase } = data);
+
+	let isOpen = false;
+
+    const toggleSidebar = () => {
+        isOpen = !isOpen;
+    };
 
 	onMount(() => {
 		const { data } = supabase.auth.onAuthStateChange((event, newSession) => {
@@ -41,17 +50,35 @@
 
 <!-- App Shell -->
 <AppShell>
-	<svelte:fragment slot="header">
-		<!-- App Bar -->
-		<AppBar>
-			<svelte:fragment slot="lead">
-				<strong class="text-xl uppercase">Skeleton</strong>
-			</svelte:fragment>
-			<svelte:fragment slot="trail">
-				<AppHeaderAuthComponent supabase={supabase}/>
-			</svelte:fragment>
-		</AppBar>
-	</svelte:fragment>
-	<!-- Page Route Content -->
-	<slot />
+    <svelte:fragment slot="header">
+        <!-- App Bar -->
+        <AppBar>
+            <svelte:fragment slot="lead">
+                <button on:click={toggleSidebar} class="toggle-btn">☰</button>
+                <strong class="text-xl uppercase">Skeleton</strong>
+            </svelte:fragment>
+            <svelte:fragment slot="trail">
+                <AppHeaderAuthComponent supabase={supabase}/>
+            </svelte:fragment>
+        </AppBar>
+    </svelte:fragment>
+    <!-- Sidebar -->
+    <Sidebar {isOpen} {toggleSidebar}/>
+    <!-- Page Route Content -->
+    <slot />
 </AppShell>
+
+
+<style>
+    .toggle-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5em;
+        cursor: pointer;
+        margin-right: 10px;
+    }
+    .toggle-btn:hover {
+        color: #ccc;
+    }
+</style>
