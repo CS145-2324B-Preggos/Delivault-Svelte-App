@@ -2,7 +2,7 @@
 
 import { error } from "@sveltejs/kit";
 import type { MqttClient } from "mqtt";
-import { EventEmitter } from "stream";
+import { EventEmitter } from "node:events";
 
 export enum HardwareState {
     locked,
@@ -17,7 +17,8 @@ export type MQTTResponse = {
 
 // TODO: implement this based on the obvious integrated eventEmitter solution + basti's fucking article https://dev.to/somedood/promises-and-events-some-pitfalls-and-workarounds-elp
 // wait until an acknowledgement for the message comes in
-function waitForAck(target: EventEmitter) {
+async function waitForAck(target: EventEmitter) {
+    console.log("Waiting for ack")
     return new Promise((resolve, reject) => {
         // listen for the ack, when heard, resolve
         target.once(
@@ -28,32 +29,39 @@ function waitForAck(target: EventEmitter) {
         // if no ack heard, reject
         setTimeout(
             reject,
-            5000
+            7500
         )
     })
+}
+
+// prepare the appropriate events and handlers, then start awaiting ack
+async function prepareForAck(mqtt: MqttClient, expected_topic: string, expected_message: string) {
+    const notifier = new EventEmitter();
+    const detectorCallback = (topic: string, ackPayload: Buffer) => { 
+        if (topic == expected_topic && ackPayload.toString() == expected_message) {
+            notifier.emit('receivedack');
+            console.log('received ack');
+            mqtt.off('message', detectorCallback);
+        } 
+    }
+    mqtt.on(
+        'message',
+        detectorCallback
+    )
+    waitForAck(notifier);
 }
 
 // helper for when any control message needs to be sent to a box
 export async function sendControlMessage(mqtt: MqttClient, box_id: string, message: 'lock' | 'unlock' | 'valid' | 'invalid'): Promise<MQTTResponse> {
     mqtt.publish(`ident/${box_id}/in`, message);
-    const notifier = new EventEmitter();
-    mqtt.once(
-        'message',
-        (topic: string, ackPayload: Buffer) => { if (topic == `ident/${box_id}/in` && ackPayload.toString() == `ack ${message}`) notifier.emit('receivedack') }
-    )
-    await waitForAck(notifier);
+    prepareForAck(mqtt, `ident/${box_id}/out`, `ack ${message}`);
     return {success: true, new_state: HardwareState.locked, error: null};
 }
 
 // helper for sending the designated masterkey to a box
 export async function sendMasterkey(mqtt: MqttClient, box_id: string, key: string): Promise<MQTTResponse> {
     mqtt.publish(`ident/${box_id}/in`, `masterkey ${key}`);
-    const notifier = new EventEmitter();
-    mqtt.once(
-        'message',
-        (topic: string, ackPayload: Buffer) => { if (topic == `ident/${box_id}/in` && ackPayload.toString() == `ack masterkey`) notifier.emit('receivedack') }
-    )
-    await waitForAck(notifier);
+    prepareForAck(mqtt, `ident/${box_id}/out`, 'ack masterkey');
     return {success: true, new_state: HardwareState.locked, error: null};
 }
 
