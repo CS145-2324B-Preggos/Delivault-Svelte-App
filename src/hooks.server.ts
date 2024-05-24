@@ -15,7 +15,7 @@ const options: IClientOptions = {
   protocol: 'mqtts',
   username: MQTT_USERNAME,
   password: MQTT_PASSWORD,
-  keepalive: 15,
+  keepalive: 60,
 }
 
 // Initialize and connect the mqtt client
