@@ -1,18 +1,12 @@
-<script lang="ts">
-    export let order;
-    export let updateOrder;
-    export let deleteOrder;
+<script>
+    export let order, updateOrder, deleteOrder;
     let isEditing = false;
-    let errorMessage = '';
-    let showErrorMessage = false;
-
-    // Reactive statements to ensure variables stay updated
-    $: editedOrderName = order?.order_name ?? '';
-    $: editedPassword = order?.password ?? '';
-    $: editedCourier = order?.courier_details ?? '';
-    $: originalOrderName = order?.order_name ?? '';
-    $: originalPassword = order?.password ?? '';
-    $: originalCourier = order?.courier_details ?? '';
+    let editedOrderName = order.order_name;
+    let editedPassword = order.password;
+    let editedCourier = order.courier_details;
+    let originalOrderName = order.order_name;
+    let originalPassword = order.password;
+    let originalCourier = order.courier_details;
 
     const startEditing = () => {
         isEditing = true;
@@ -20,11 +14,6 @@
 
     const confirmEdit = () => {
         isEditing = false;
-        if (!editedOrderName || !editedPassword || !editedCourier) {
-            errorMessage = 'Please fill out all fields before submitting.';
-            showErrorMessage = true;
-            return;
-        }
         order.order_name = editedOrderName;
         order.password = editedPassword;
         order.courier_details = editedCourier;
@@ -37,15 +26,8 @@
         editedOrderName = originalOrderName;
         editedPassword = originalPassword;
         editedCourier = originalCourier;
-
-        hideErrorMessage();
-    };
-
-    const hideErrorMessage = () => {
-        showErrorMessage = false;
     };
 </script>
-
 
 <div class="OrderContainer" class:delivered={order.status}>
     {#if isEditing}
@@ -121,9 +103,6 @@
     {:else}
         <button on:click={startEditing}>Update</button>
     {/if}
-    {#if showErrorMessage}
-        <p class="errorMessage">{errorMessage}</p>
-    {/if}
 </div>
 
 <style>
@@ -166,9 +145,5 @@
     input[type="text"] {
 		color: blue; /* Change font color for input text and submit button */
 	}
-
-    .errorMessage {
-        color: red;
-    }
 
 </style>
