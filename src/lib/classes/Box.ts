@@ -4,8 +4,9 @@ import type { BoxProcessed } from "$lib/utils/types";
 import type { SupabaseClient } from "@supabase/supabase-js"; 
 // parameters for insertion and update
 export type BoxDBObj = {
-    box_id: number;
+    box_id: string;
     user_id: number;
+    locked: boolean;
 }
 
 // database response of Box functions
