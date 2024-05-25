@@ -5,16 +5,11 @@
 
 	import type { Order, OrderDBObj } from "$lib/classes/Order";
   import { onMount } from "svelte";
-  import { createClient } from "@supabase/supabase-js";
-  import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public'
   import { v4 as uuidv4 } from 'uuid';
-
 
   export let data;
 
-  let { orders } = data;
-
-  let supabase = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
+  let { orders, supabase } = data;
   let showAddOrderScreen = false;
 
   const toggleAddOrderScreen = () => {
@@ -69,6 +64,7 @@
     const hexWithoutHyphens = uuid.replace(/-/g, '');
     return parseInt(hexWithoutHyphens.substring(0, 8), 16);
   };
+
   const handleAddOrderFormSubmit = async (e:CustomEvent) => {
     let newOrderId = generateIntegerUUID();
     const orderDetails = e.detail;
@@ -105,7 +101,7 @@
     <h1>My orders</h1>
     <div class="middleContainer">
       <div class="orderListContainer">
-        {#each orders as order}
+        {#each orders as order (order.order_id)}
           <OrderContainer {order} {updateOrder} {deleteOrder} />
         {:else}
           <p>No Orders Yet</p>
