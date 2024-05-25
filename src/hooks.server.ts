@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { error, type Handle, redirect } from '@sveltejs/kit'
 import { sequence } from '@sveltejs/kit/hooks'
+import fs from 'fs';
 
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public'
 import { MQTT_BROKER_URL, MQTT_BROKER_PRT, MQTT_USERNAME, MQTT_PASSWORD } from '$env/static/private'
@@ -15,12 +16,13 @@ const options: IClientOptions = {
   protocol: 'mqtts',
   username: MQTT_USERNAME,
   password: MQTT_PASSWORD,
-  keepalive: 15,
+  keepalive: 60,
+  ca: fs.readFileSync('./src/emqxsl-ca.crt'),
 }
 
 // Initialize and connect the mqtt client
 const client = mqtt.connect(options)
-client.subscribe('cs145/test')
+client.subscribe('ident/+/out')
 client.publish("sys/log", "Hello, world!")
 
 client.on(

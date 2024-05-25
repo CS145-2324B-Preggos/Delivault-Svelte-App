@@ -17,11 +17,10 @@
 
 	export let data;
 	$: ({ session, supabase } = data);
-
-	let isOpen = false;
+	let showSideBar: boolean;
 
     const toggleSidebar = () => {
-        isOpen = !isOpen;
+        showSideBar = !showSideBar;
     };
 
 	onMount(() => {
@@ -63,7 +62,7 @@
         </AppBar>
     </svelte:fragment>
     <!-- Sidebar -->
-    <Sidebar {isOpen} {toggleSidebar}/>
+    <Sidebar {showSideBar} on:click={toggleSidebar}/>
     <!-- Page Route Content -->
     <slot />
 </AppShell>
