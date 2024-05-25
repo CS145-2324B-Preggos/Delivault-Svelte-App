@@ -123,7 +123,7 @@ const mqttClient: Handle = async({event, resolve}) => {
   if(!event.locals.session || !event.locals.user) return resolve(event)
 
   event.locals.mqttClient = client
-  client.publish("sys/log", "Hello, world!")
+  client.publish("sys/log", `Visited ${event.url}`)
 
   return resolve(event)
 }
