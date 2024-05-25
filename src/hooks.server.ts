@@ -10,15 +10,13 @@ import { onReceived } from '$lib/server/MQTT'
 
 const crt = await fetch("https://assets.emqx.com/data/emqxsl-ca.crt").then(async (response) => await response.blob().then( (blob) => blob.text() ))
 
-console.log(crt)
-
 const options: IClientOptions = {
   host: MQTT_BROKER_URL,
   port: parseInt(MQTT_BROKER_PRT),
   protocol: 'mqtts',
   username: MQTT_USERNAME,
   password: MQTT_PASSWORD,
-  keepalive: 60,
+  keepalive: 0,
   ca: crt,
 }
 
