@@ -45,6 +45,7 @@
   "type": "module",
   "dependencies": {
     "@floating-ui/dom": "1.6.4",
+    "@iconify/svelte": "^4.0.2",
     "@supabase/ssr": "^0.3.0",
     "@supabase/supabase-js": "^2.43.0",
     "@types/es6-promise": "^3.3.0",
