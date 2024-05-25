@@ -4,10 +4,6 @@ import { error } from "@sveltejs/kit";
 import type { MqttClient } from "mqtt";
 import { EventEmitter } from "node:events";
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from "$env/static/public";
-import { SupabaseClient, createClient } from "@supabase/supabase-js";
-import type { BoxDBObj } from "$lib/classes/Box";
-
-const supabase: SupabaseClient = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
 
 export enum HardwareState {
     locked,
@@ -112,20 +108,10 @@ export function onReceived(mqtt: MqttClient, topic: string, message: Buffer) {
 }
 
 
-export async function toggleLockMQTT(mqtt: MqttClient, box_id: string): Promise<MQTTResponse> {
-    try {
-        const { data, error } = await supabase // assuming one box in database
-            .from('box')
-            .select()
-            .eq("box_id", box_id);
-        const box: BoxDBObj = data;
-
-        if (box.locked){
-            return sendControlMessage(mqtt, box_id, "unlock");
-        } else {
-            return sendControlMessage(mqtt, box_id, "lock");
-        } 
-    } catch (error) {
-        console.log(error);
-    }
+export async function toggleLockMQTT(mqtt: MqttClient, box_id: string, box_status: boolean): Promise<MQTTResponse> {
+    if (box_status){
+        return sendControlMessage(mqtt, box_id, "unlock");
+    } else {
+        return sendControlMessage(mqtt, box_id, "lock");
+    } 
 }
