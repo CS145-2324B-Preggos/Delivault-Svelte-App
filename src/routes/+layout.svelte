@@ -57,7 +57,11 @@
             <svelte:fragment slot="lead">
                 <button on:click={toggleSidebar} class="toggle-btn"><Icon icon="mingcute:menu-fill" /></button>
             </svelte:fragment>
-			<strong class="text-xl uppercase">Delivault</strong>
+			<nav>
+				<ul>
+					<li><a href="/"><strong class="text-xl uppercase">Delivault</strong></a></li>
+				</ul>	
+			</nav>
             <svelte:fragment slot="trail">
                 <AppHeaderAuthComponent supabase={supabase}/>
             </svelte:fragment>
