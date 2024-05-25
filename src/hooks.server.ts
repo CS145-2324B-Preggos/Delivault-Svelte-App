@@ -1,14 +1,16 @@
 import { createServerClient } from '@supabase/ssr'
 import { error, type Handle, redirect } from '@sveltejs/kit'
 import { sequence } from '@sveltejs/kit/hooks'
-import fs from 'fs';
-
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public'
 import { MQTT_BROKER_URL, MQTT_BROKER_PRT, MQTT_USERNAME, MQTT_PASSWORD } from '$env/static/private'
 import mqtt, { type IClientOptions } from 'mqtt'
 import { onReceived } from '$lib/server/MQTT'
 
 // On server startup, set up the client
+
+const crt = await fetch("https://assets.emqx.com/data/emqxsl-ca.crt").then(async (response) => await response.blob().then( (blob) => blob.text() ))
+
+console.log(crt)
 
 const options: IClientOptions = {
   host: MQTT_BROKER_URL,
@@ -17,7 +19,7 @@ const options: IClientOptions = {
   username: MQTT_USERNAME,
   password: MQTT_PASSWORD,
   keepalive: 60,
-  ca: fs.readFileSync('./src/emqxsl-ca.crt'),
+  ca: crt,
 }
 
 // Initialize and connect the mqtt client
