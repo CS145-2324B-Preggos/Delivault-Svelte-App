@@ -3,6 +3,7 @@
 import { error } from "@sveltejs/kit";
 import type { MqttClient } from "mqtt";
 import { EventEmitter } from "node:events";
+import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from "$env/static/public";
 
 export enum HardwareState {
     locked,
@@ -104,4 +105,13 @@ export function onReceived(mqtt: MqttClient, topic: string, message: Buffer) {
     }
 
     // if others ...
+}
+
+
+export async function toggleLockMQTT(mqtt: MqttClient, box_id: string, box_status: boolean): Promise<MQTTResponse> {
+    if (box_status){
+        return sendControlMessage(mqtt, box_id, "unlock");
+    } else {
+        return sendControlMessage(mqtt, box_id, "lock");
+    } 
 }
