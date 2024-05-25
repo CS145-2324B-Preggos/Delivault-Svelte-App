@@ -1,8 +1,6 @@
 <script lang="ts">
 	import '../app.postcss';
 	import { AppShell, AppBar } from '@skeletonlabs/skeleton';
-
-	import Icon from '@iconify/svelte';
 	
 	// Floating UI for Popups
 	import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
@@ -55,7 +53,7 @@
         <!-- App Bar -->
         <AppBar gridColumns="grid-cols-3" background='bg-primary-500' slotDefault="place-self-center" slotTrail="place-content-end">
             <svelte:fragment slot="lead">
-                <button on:click={toggleSidebar} class="toggle-btn"><Icon icon="mingcute:menu-fill" /></button>
+                <button on:click={toggleSidebar} class="toggle-btn">☰</button>
             </svelte:fragment>
 			<nav>
 				<ul>
