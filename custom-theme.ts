@@ -19,7 +19,7 @@ export const customTheme: CustomThemeConfig = {
 		"--on-success": "0 0 0",
 		"--on-warning": "0 0 0",
 		"--on-error": "255 255 255",
-		"--on-surface": "255 255 255",
+		"--on-surface": "0 0 0",
 		// =~= Theme Colors  =~=
 		// primary | #f86b14 
 		"--color-primary-50": "254 233 220", // #fee9dc

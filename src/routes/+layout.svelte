@@ -53,7 +53,7 @@
 <AppShell>
     <svelte:fragment slot="header">
         <!-- App Bar -->
-        <AppBar  background='bg-primary-500' slotDefault="place-self-center">
+        <AppBar gridColumns="grid-cols-3" background='bg-primary-500' slotDefault="place-self-center" slotTrail="place-content-end">
             <svelte:fragment slot="lead">
                 <button on:click={toggleSidebar} class="toggle-btn"><Icon icon="mingcute:menu-fill" /></button>
             </svelte:fragment>
@@ -65,6 +65,7 @@
     </svelte:fragment>
     <!-- Sidebar -->
     <Sidebar {showSideBar} on:click={toggleSidebar}/>
+	
     <!-- Page Route Content -->
     <slot />
 </AppShell>
