@@ -72,17 +72,54 @@ export async function sendMasterkey(mqtt: MqttClient, box_id: string, key: strin
     return mqttResponse;
 }
 
-function verifyPasscode(passcode: string | null): boolean {
-    return passcode !== null && passcode.length == 6;
+async function checkPasscodeExists(passcode: string) {
+    // checks first if passcode is in database, i.e., existing order entry
+    const response = await fetch('../../routes/api/matchpasscode', {
+        method: 'GET',
+        body: JSON.stringify(passcode),
+        headers: {
+            'content-type': 'application/json'
+        }
+    });
+
+    const checkResponse = await response.json();
+
+    // contains success, orderConsumed, and error
+    return checkResponse;
+}
+
+async function verifyPasscode(passcode: string | null): Promise<boolean> {
+    if(passcode !== null && passcode.length == 8){
+        const doesPasscodeExist = await checkPasscodeExists(passcode); // takes in something???
+        // this returns an object
+
+        if (doesPasscodeExist.success) {
+            const isPasscodeValid = await fetch('../../routes/api/matchpasscode', {
+                method: 'POST',
+                body: JSON.stringify(passcode), // should take in something???
+                headers: {
+                    'content-type': 'application/json'
+                }
+            });
+
+            const response = await isPasscodeValid.json();
+            return response.success;
+        } else {
+            return false;
+        }
+        
+    } else {
+        return false;
+    }
 }
 
 // helper for when a pass <code> message is received
-function receivedPasscode(mqtt: MqttClient, message: string, box_id: string) {
+async function receivedPasscode(mqtt: MqttClient, message: string, box_id: string) {
 
     const passcode = (/^pass (\d*)$/.exec(message) ?? [null, null])[1];
 
     // verify the passcode, otherwise true for now
-    const isPasscodeCorrect = verifyPasscode(passcode);
+    const isPasscodeCorrect = await verifyPasscode(passcode);
 
     return sendControlMessage(mqtt, box_id, isPasscodeCorrect ? "valid" : "invalid");
 }

@@ -9,8 +9,9 @@
 	import { onMount } from 'svelte';
 	import type { BoxDBObj } from '$lib/classes/Box.ts';
 
+	export let data;
 	// load the database
-	let supabase = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
+	let { supabase } = data
 	let boxOfUser: BoxDBObj | any;
 	// let loading = true;
 	let isLocked:boolean;
@@ -57,6 +58,7 @@
 		isLocked = !isLocked;
 		console.log('lock was toggled to', isLocked);
 		updateLockedField(boxOfUser);
+		
 	};
 </script>
 

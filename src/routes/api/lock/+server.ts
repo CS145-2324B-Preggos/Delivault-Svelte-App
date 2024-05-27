@@ -20,8 +20,10 @@ import { json } from "@sveltejs/kit";
 // }
 
 // FOR TESTING PURPOSES ONLY
-export async function GET({ locals }) {
+export async function GET({ locals }) { // "get" lock status of actual box/supabase
     const boxState = await sendControlMessage(locals.mqttClient, "0000000000000000", "lock");
 
     return json(boxState, {status: 200});
 }
+
+// POST toggleLockMQTT(mqttClient, boxOfUser.box_id, isLocked); (toggleLocked)
