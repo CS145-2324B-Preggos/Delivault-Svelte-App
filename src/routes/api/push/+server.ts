@@ -1,3 +1,5 @@
+import { sendNotification } from '$lib/server/Webpush.js'
+
 // for retrieving an existing push subscription
 export async function GET({ locals: { supabase, user } }) {
     if (!user) return new Response( null, {status: 401, statusText: "User unauthenticated"} )
@@ -24,6 +26,10 @@ export async function POST({ request, locals : { supabase, user } }) {
         'user_uid' : user.id,
         'subscription': pushSubscription
     }, {onConflict: 'user_uid'})
+
+    sendNotification(
+        pushSubscription
+    )
 
     return new Response( null, { 
         status: error ? 500 : 200, 
