@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '../app.postcss';
 	import { AppShell, AppBar, Toast, getToastStore, initializeStores } from '@skeletonlabs/skeleton';
+	import { PUBLIC_VAPID_KEY } from '$env/static/public';
 
 	import Icon from '@iconify/svelte';
 	
@@ -14,13 +15,19 @@
 	import { onMount } from 'svelte';
 	import AppHeaderAuthComponent from '$lib/components/AppHeaderAuthComponent.svelte';
 	import Sidebar from '$lib/components/Sidebar.svelte';
+	import { error } from '@sveltejs/kit';
+
+	import toUint8Array from 'urlb64touint8array';
+	import { POST } from './api/box/+server';
 
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 	initializeStores();
 	const toastStore = getToastStore();
 
 	export let data;
+	// TODO: implement pushSubscription retrieval from server
 	$: ({ session, supabase } = data);
+	let { pushSubscription } = data;
 	let showSideBar: boolean;
 
 	function askPermission() {
@@ -37,6 +44,10 @@
 			throw new Error("We weren't granted permission.");
 			}
 		});
+	}
+
+	function registerPush() {
+
 	}
 
     const toggleSidebar = () => {
@@ -62,17 +73,50 @@
 			}
 		});
 
-		// only request permission if permission has not yet been granted, and the user is signed in
-		if (Notification.permission != "granted" && session) {
-			toastStore.trigger(
-				{
-					message: "Notifications improve your experience",
-					action: {
-						label: "Allow",
-						response: () => askPermission()
+		// perform this flow iff a user is logged in
+		if (session) {
+			
+			// only request permission if permission has not yet been granted
+			if (Notification.permission != "granted") {
+				toastStore.trigger(
+					{
+						message: "Notifications improve your experience",
+						action: {
+							label: "Allow",
+							response: () => askPermission()
+						}
 					}
-				}
-			)
+				)
+			}
+			
+			// only request another subscription if a previous subscription does not yet exist or is outdated
+			if (!pushSubscription) {
+				// callback hell to grab the service worker registration, create a push subscription, and then to push the subscription to the server
+				const registration = navigator.serviceWorker.getRegistration().then(
+					(registration) => {
+						registration ??= error(400, "Service Worker not properly registered")
+						registration.pushManager.subscribe(
+							{
+								userVisibleOnly: true,
+								applicationServerKey: toUint8Array(PUBLIC_VAPID_KEY)
+							}
+						).then(
+							() => {
+								fetch('/api/push/add-subscription',{
+									method: 'POST',
+									headers: {
+										'Content-type': 'application/json'
+									},
+									body: JSON.stringify(pushSubscription)
+								})
+							}
+						)
+					}
+				)
+
+
+			}
+		
 		}
 
 		return () => data.subscription.unsubscribe();
