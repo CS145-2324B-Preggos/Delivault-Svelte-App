@@ -96,13 +96,14 @@
 								applicationServerKey: toUint8Array(PUBLIC_VAPID_KEY)
 							}
 						).then(
-							() => {
+							(newPushSubscription: PushSubscription) => {
+								console.log(newPushSubscription)
 								fetch('/api/push',{
 									method: 'POST',
 									headers: {
 										'Content-type': 'application/json'
 									},
-									body: JSON.stringify(pushSubscription)
+									body: JSON.stringify(newPushSubscription)
 								})
 							}
 						)
