@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '../app.postcss';
-	import { AppShell, AppBar } from '@skeletonlabs/skeleton';
+	import { AppShell, AppBar, Toast, getToastStore, initializeStores } from '@skeletonlabs/skeleton';
 
 	import Icon from '@iconify/svelte';
 	
@@ -16,10 +16,28 @@
 	import Sidebar from '$lib/components/Sidebar.svelte';
 
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
+	initializeStores();
+	const toastStore = getToastStore();
 
 	export let data;
 	$: ({ session, supabase } = data);
 	let showSideBar: boolean;
+
+	function askPermission() {
+		return new Promise(function (resolve, reject) {
+			const permissionResult = Notification.requestPermission(function (result) {
+			resolve(result);
+			});
+
+			if (permissionResult) {
+			permissionResult.then(resolve, reject);
+			}
+		}).then(function (permissionResult) {
+			if (permissionResult !== 'granted') {
+			throw new Error("We weren't granted permission.");
+			}
+		});
+	}
 
     const toggleSidebar = () => {
         showSideBar = !showSideBar;
@@ -44,10 +62,24 @@
 			}
 		});
 
+		if (Notification.permission != "granted") {
+			toastStore.trigger(
+				{
+					message: "Notifications improve your experience",
+					action: {
+						label: "Allow",
+						response: () => askPermission()
+					}
+				}
+			)
+		}
+
 		return () => data.subscription.unsubscribe();
 	});
 
 </script>
+
+<Toast />
 
 <!-- App Shell -->
 <AppShell>
