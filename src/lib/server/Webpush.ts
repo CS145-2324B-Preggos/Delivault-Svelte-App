@@ -1,6 +1,6 @@
 import { PRIVATE_VAPID_KEY } from '$env/static/private';
 import { PUBLIC_VAPID_KEY } from '$env/static/public';
-import webpush from 'web-push';
+import webpush, { type SendResult } from 'web-push';
 
 export async function sendNotification(subscription: PushSubscriptionJSON, title: string = "Hello, world!", body: string = "Hello from DeliVault!") {
     webpush.setVapidDetails(
@@ -21,7 +21,9 @@ export async function sendNotification(subscription: PushSubscriptionJSON, title
         subscription,
         notification
     ).then(
-        () => { console.log("notification success!") }
+        (sendResult: SendResult) => {
+            console.log(`${sendResult.statusCode} ${sendResult.body}`)
+        }
     ).catch(
         (notifError) => { throw new Error(notifError) }
     )
