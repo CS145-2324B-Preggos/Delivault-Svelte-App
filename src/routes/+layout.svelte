@@ -62,7 +62,8 @@
 			}
 		});
 
-		if (Notification.permission != "granted") {
+		// only request permission if permission has not yet been granted, and the user is signed in
+		if (Notification.permission != "granted" && session) {
 			toastStore.trigger(
 				{
 					message: "Notifications improve your experience",
