@@ -46,10 +46,6 @@
 		});
 	}
 
-	function registerPush() {
-
-	}
-
     const toggleSidebar = () => {
         showSideBar = !showSideBar;
     };
