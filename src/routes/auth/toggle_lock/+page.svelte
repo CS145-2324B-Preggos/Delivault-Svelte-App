@@ -35,7 +35,7 @@
 
 	// as soon as the page starts, fetch the box of the user
 	onMount(async () => {
-		fetchUserBoxEntry('0000000000000000'); // find a way to identify the specific box id of the current user, pero for now eto muna yung sa box natin
+		fetchUserBoxEntry('1000000000000000'); // find a way to identify the specific box id of the current user, pero for now eto muna yung sa box natin
 	});
 
 	// updates the 'locked' field of a box database object
