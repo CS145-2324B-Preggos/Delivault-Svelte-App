@@ -1,11 +1,10 @@
 import { createServerClient } from '@supabase/ssr'
 import { error, type Handle, redirect } from '@sveltejs/kit'
 import { sequence } from '@sveltejs/kit/hooks'
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, PUBLIC_VAPID_KEY } from '$env/static/public'
-import { MQTT_BROKER_URL, MQTT_BROKER_PRT, MQTT_USERNAME, MQTT_PASSWORD, PRIVATE_VAPID_KEY } from '$env/static/private'
+import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public'
+import { MQTT_BROKER_URL, MQTT_BROKER_PRT, MQTT_USERNAME, MQTT_PASSWORD } from '$env/static/private'
 import mqtt, { type IClientOptions } from 'mqtt'
 import { onReceived } from '$lib/server/MQTT'
-import webpush from 'web-push'
 
 // On server startup, set up the mqtt client
 
@@ -39,14 +38,6 @@ client.on(
 client.on(
   'message',
   (topic: string, payload: Buffer) => onReceived(client, topic, payload)
-)
-
-// On server startup, also set up the webpush client
-
-webpush.setVapidDetails(
-  'mailto:vereyes2+push-notifs@up.edu.ph',
-  PUBLIC_VAPID_KEY,
-  PRIVATE_VAPID_KEY
 )
 
 // Before the server is killed, disconnect the client 
@@ -137,13 +128,4 @@ const mqttClient: Handle = async({event, resolve}) => {
   return resolve(event)
 }
 
-const webpush: Handle = async({event, resolve}) => {
-  if(!event.locals.session || !event.locals.user) return resolve(event)
-
-  // note that we do not pass the push subscription, otherwise we would end up in a loop since that necessitates a fetch
-  event.locals.webpush = webpush
-
-  return resolve(event)
-}
-
-export const handle: Handle = sequence(supabase, authGuard, mqttClient, webpush)
+export const handle: Handle = sequence(supabase, authGuard, mqttClient)
