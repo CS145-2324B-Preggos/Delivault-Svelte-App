@@ -48,7 +48,7 @@ export const load: LayoutLoad = async ({ data, depends, fetch }) => {
   } = await supabase.auth.getUser()
 
   // TODO: get pushSubscription
-  const pushSubscription: PushSubscription | null = null;
+  const pushSubscription: PushSubscriptionJSON | null = (await (await fetch('/api/push')).json());
 
   return { session, supabase, user, pushSubscription }
 }

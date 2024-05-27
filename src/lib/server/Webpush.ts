@@ -17,13 +17,11 @@ export async function sendNotification(subscription: PushSubscriptionJSON, title
     })
 
     // ignore the error that arises here
-    await webpush.sendNotification(
+    return webpush.sendNotification(
         subscription,
         notification
     ).then(
-        (sendResult: SendResult) => {
-            console.log(`${sendResult.statusCode} ${sendResult.body}`)
-        }
+        (sendResult: SendResult) => sendResult
     ).catch(
         (notifError) => { throw new Error(notifError) }
     )
