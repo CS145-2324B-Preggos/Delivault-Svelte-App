@@ -18,7 +18,6 @@
 	import { error } from '@sveltejs/kit';
 
 	import toUint8Array from 'urlb64touint8array';
-	import { POST } from './api/box/+server';
 
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 	initializeStores();
