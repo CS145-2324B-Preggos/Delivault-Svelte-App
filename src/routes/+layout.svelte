@@ -102,7 +102,7 @@
 							}
 						).then(
 							() => {
-								fetch('/api/push/add-subscription',{
+								fetch('/api/push',{
 									method: 'POST',
 									headers: {
 										'Content-type': 'application/json'
