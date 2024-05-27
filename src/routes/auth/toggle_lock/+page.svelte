@@ -18,46 +18,60 @@
 
 	// fetches the "box" table of the user and stores it in the 'boxOfUser' variable
 	const fetchUserBoxEntry = async (box_id: string) => {
-		try {
-			let { data, error } = await supabase.from('box').select().eq('box_id', box_id).single();
-			if (error) {
-				console.log('Error fetching box table: ', error);
-			} else {
-				boxOfUser = data;
-					isLocked = boxOfUser.locked
-					console.log('Box of user successfully fetched:');
-					console.log(boxOfUser);
-					console.log(isLocked);
-				}
-		} catch (err) {
-			console.log('Unexpected Error: ', err);
+		const selectResponse = await fetch(`../../api/lock?box_id=${box_id}`, {
+			method: 'GET',
+			headers: {
+				'content-type': 'application/json'
+			}
+		});
+
+		const box = await selectResponse.json();
+		console.log('boxgab: ', box);
+
+		if (box.error) {
+			console.log('Error fetching box table: ', box.error);
+		} else {
+			boxOfUser = box.box[0];
+			isLocked = boxOfUser.locked; // Assuming boxOfUser is an array with one element
+			console.log('Box of user successfully fetched:');
+			console.log(boxOfUser);
+			console.log(isLocked);
 		}
 	};
 
 	// as soon as the page starts, fetch the box of the user
 	onMount(async () => {
-		fetchUserBoxEntry('0000000000000000'); // find a way to identify the specific box id of the current user, pero for now eto muna yung sa box natin
+		await fetchUserBoxEntry('1000000000000000'); // find a way to identify the specific box id of the current user, pero for now eto muna yung sa box natin
 	});
 
 	// updates the 'locked' field of a box database object
 	const updateLockedField = async (box: BoxDBObj) => {
-		// executes a query to update the box database
-		await supabase
-			.from('box')
-			.update({
-				locked: !box.locked
-			})
-			.eq('box_id', box.box_id);
-		console.log('database successfullly updated');
-		// fetch the box of the user again to have updated values
-		await fetchUserBoxEntry(boxOfUser.box_id);
-		console.log('The box of user value is now updated');
+		const updateResponse = await fetch(`../../api/lock`, {
+			method: 'POST',
+			body: JSON.stringify([box]),
+			headers: {
+				'content-type': 'application/json'
+			}
+		});
+		const response = await updateResponse.json();
+		console.log("update response: ", response);
+
+
+		if (response.success) {
+			// Update the local state to reflect the change
+			boxOfUser.locked = !box.locked;
+			isLocked = !isLocked;
+			console.log('The box of user value is now updated');
+		} else {
+			console.log("Updating of lock failed");
+		}
+		
 	};
 
-	const toggleIsLocked = () => {
+	const toggleIsLocked = async () => {
 		isLocked = !isLocked;
 		console.log('lock was toggled to', isLocked);
-		updateLockedField(boxOfUser);
+		await updateLockedField(boxOfUser);
 		
 	};
 </script>

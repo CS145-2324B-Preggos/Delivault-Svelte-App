@@ -1,12 +1,14 @@
 import { json } from "@sveltejs/kit";
 
-export async function GET({ locals, passcode }) {
+export async function GET({ request, locals }) {
     try{
+        const passRequest = await request.json();
+
         // getting the order with a matching passcode
         const { data, error } = await locals.supabase
             .from('order')
             .select()
-            .eq('password', passcode);
+            .eq('password', passRequest.passcode);
 
         const matchingOrder = data;
 
