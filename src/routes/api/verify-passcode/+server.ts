@@ -51,7 +51,7 @@ export async function POST({ request, locals: { supabase, mqttClient } }) {
     
             if (updateError) {
                 console.error("db update error", updateError);
-                throw error(500, 'db update failed');
+                throw error(501, 'db update failed');
             }
             console.log("Box response successful");
     
