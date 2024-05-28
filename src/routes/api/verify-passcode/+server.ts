@@ -28,6 +28,7 @@ export async function POST({ request, locals: { supabase, mqttClient } }) {
     }
 
     if (data.length == 0 || data[0].status) {
+        sendControlMessage(mqttClient, requestObject.box_id, "pass invalid");
         error(400, 'invalid code');
     }
 
@@ -36,7 +37,7 @@ export async function POST({ request, locals: { supabase, mqttClient } }) {
     }
 
     try {
-        const boxResponse = await sendControlMessage(mqttClient, requestObject.box_id, "unlock");
+        const boxResponse = await sendControlMessage(mqttClient, requestObject.box_id, "pass valid");
         if (boxResponse.success) {
             const { error: updateError } = await supabase
                 .from("public_orders")
