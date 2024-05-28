@@ -16,7 +16,6 @@
 	import AppHeaderAuthComponent from '$lib/components/AppHeaderAuthComponent.svelte';
 	import Sidebar from '$lib/components/Sidebar.svelte';
 
-	import { page } from '$app/stores'
 	import { error } from '@sveltejs/kit';
 
 	import toUint8Array from 'urlb64touint8array';
@@ -29,7 +28,6 @@
 	// TODO: implement pushSubscription retrieval from server
 	$: ({ session, supabase } = data);
 	let { pushSubscription } = data;
-	let showSideBar: boolean;
 
 	function askPermission() {
 		return new Promise(function (resolve, reject) {
@@ -46,10 +44,6 @@
 			}
 		});
 	}
-
-    const toggleSidebar = () => {
-        showSideBar = !showSideBar;
-    };
 
 	onMount(() => {
 		const { data } = supabase.auth.onAuthStateChange((event, newSession) => {

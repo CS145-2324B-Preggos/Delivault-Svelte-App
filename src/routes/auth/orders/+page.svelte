@@ -108,8 +108,10 @@
 			</div>
 			<div class="pt-2"></div>
 		{:else}
-			<div class="card variant-ghost-primary w-64 h-10 flex flex-row place-content-center">
-				<section class="place-self-center">No Orders Yet</section>
+			<div class="mx-2">
+				<div class="card variant-ghost-primary w-full h-10 flex flex-row place-content-center p-5 space-y-2">
+					<section class="place-self-center">No Orders Yet</section>
+				</div>
 			</div>
 		{/each}
 	<!-- </div> -->
