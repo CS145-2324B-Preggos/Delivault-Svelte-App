@@ -6,7 +6,7 @@ export async function POST({ request, locals: { supabase, mqttClient } }) {
 
     const requestObject: { hash_passcode: string, box_id: string } = await request.json()
     
-    const {data, error: pgError} = await supabase
+    let {data, error: pgError} = await supabase
         .from("orders")
         .select()
         .eq(
@@ -18,7 +18,16 @@ export async function POST({ request, locals: { supabase, mqttClient } }) {
     if (pgError) error(400, `${pgError.code}: ${pgError.details}`)
     if (data.length == 0) error(400, 'invalid code')
 
-    sendControlMessage(mqttClient, requestObject.box_id, "unlock")
+    const boxResponse = await sendControlMessage(mqttClient, requestObject.box_id, "unlock")
+
+    if (boxResponse.success) {
+        let {error: pgError} = await supabase
+            .from("orders")
+            .update({status: true})
+            .select()
+        
+        if (pgError) error(500, 'db update failed')
+    }
 
     return json(`valid code`)
 }
