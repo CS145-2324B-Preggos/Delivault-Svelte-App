@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '../app.postcss';
-	import { AppShell, AppBar } from '@skeletonlabs/skeleton';
+	import { AppShell, AppBar, Toast, getToastStore, initializeStores, AppRail, AppRailAnchor } from '@skeletonlabs/skeleton';
+	import { PUBLIC_VAPID_KEY } from '$env/static/public';
 
 	import Icon from '@iconify/svelte';
 	
@@ -13,13 +14,36 @@
 	import { goto, invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import AppHeaderAuthComponent from '$lib/components/AppHeaderAuthComponent.svelte';
-	import Sidebar from '$lib/components/Sidebar.svelte';
+	import { page } from '$app/stores'
+	import { error } from '@sveltejs/kit';
+
+	import toUint8Array from 'urlb64touint8array';
 
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
+	initializeStores();
+	const toastStore = getToastStore();
 
 	export let data;
+	// TODO: implement pushSubscription retrieval from server
 	$: ({ session, supabase } = data);
+	let { pushSubscription } = data;
 	let showSideBar: boolean;
+
+	function askPermission() {
+		return new Promise(function (resolve, reject) {
+			const permissionResult = Notification.requestPermission(function (result) {
+			resolve(result);
+			});
+
+			if (permissionResult) {
+			permissionResult.then(resolve, reject);
+			}
+		}).then(function (permissionResult) {
+			if (permissionResult !== 'granted') {
+			throw new Error("We weren't granted permission.");
+			}
+		});
+	}
 
     const toggleSidebar = () => {
         showSideBar = !showSideBar;
@@ -44,42 +68,95 @@
 			}
 		});
 
+		// perform this flow iff a user is logged in
+		if (session) {
+			
+			// only request permission if permission has not yet been granted
+			if (Notification.permission != "granted") {
+				toastStore.trigger(
+					{
+						message: "Notifications improve your experience",
+						action: {
+							label: "Allow",
+							response: () => askPermission()
+						}
+					}
+				)
+			}
+			
+			// only request another subscription if a previous subscription does not yet exist or is outdated
+			if (!pushSubscription) {
+				// callback hell to grab the service worker registration, create a push subscription, and then to push the subscription to the server
+				const registration = navigator.serviceWorker.getRegistration().then(
+					(registration) => {
+						registration ??= error(400, "Service Worker not properly registered")
+						registration.pushManager.subscribe(
+							{
+								userVisibleOnly: true,
+								applicationServerKey: toUint8Array(PUBLIC_VAPID_KEY)
+							}
+						).then(
+							(newPushSubscription: PushSubscription) => {
+								console.log(newPushSubscription)
+								fetch('/api/push',{
+									method: 'POST',
+									headers: {
+										'Content-type': 'application/json'
+									},
+									body: JSON.stringify(newPushSubscription)
+								})
+							}
+						)
+					}
+				)
+
+
+			}
+		
+		}
+
 		return () => data.subscription.unsubscribe();
 	});
-
 </script>
 
+<Toast />
+
 <!-- App Shell -->
-<AppShell>
+<AppShell regionPage="bg-surface-500 text-black">
     <svelte:fragment slot="header">
         <!-- App Bar -->
-        <AppBar  background='bg-primary-500' slotDefault="place-self-center">
-            <svelte:fragment slot="lead">
-                <button on:click={toggleSidebar} class="toggle-btn"><Icon icon="mingcute:menu-fill" /></button>
-            </svelte:fragment>
-			<strong class="text-xl uppercase">Delivault</strong>
+        <AppBar gridColumns="grid-cols-3" background='bg-primary-500' slotTrail="place-content-end">
+			<svelte:fragment slot="lead">
+				<nav>
+					<ul>
+						<a href="/"><strong class="text-xl uppercase">Delivault</strong></a>
+					</ul>	
+				</nav>
+			</svelte:fragment>
             <svelte:fragment slot="trail">
                 <AppHeaderAuthComponent supabase={supabase}/>
             </svelte:fragment>
         </AppBar>
     </svelte:fragment>
+
     <!-- Sidebar -->
-    <Sidebar {showSideBar} on:click={toggleSidebar}/>
+	<svelte:fragment slot="sidebarLeft">
+		<AppRail background="bg-tertiary-500">
+			<AppRailAnchor href="/" selected={$page.url.pathname === '/'} title="Home">
+				<svelte:fragment slot="lead"><Icon icon="ic:round-home" class="text-3xl"/></svelte:fragment>
+				<span>Home</span>
+			</AppRailAnchor>
+			<AppRailAnchor href="/auth/toggle_lock" selected={$page.url.pathname === '/auth/toggle_lock'} title="Lock">
+				<svelte:fragment slot="lead"><Icon icon="mingcute:lock-fill" class="text-3xl"/></svelte:fragment>
+				<span>Lock</span>
+			</AppRailAnchor>
+			<AppRailAnchor href="/auth/orders" selected={$page.url.pathname === '/auth/orders'} title="Home">
+				<svelte:fragment slot="lead"><Icon icon="mingcute:list-check-3-fill" class="text-3xl"/></svelte:fragment>
+				<span>Orders</span>
+			</AppRailAnchor>
+		</AppRail>
+	</svelte:fragment>
     <!-- Page Route Content -->
     <slot />
 </AppShell>
 
-
-<style>
-    .toggle-btn {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 1.5em;
-        cursor: pointer;
-        margin-right: 10px;
-    }
-    .toggle-btn:hover {
-        color: #ccc;
-    }
-</style>
