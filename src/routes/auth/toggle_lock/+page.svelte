@@ -2,7 +2,8 @@
 	// import smiley from './images/smileyface.jpg';
 	// import concerned from './images/gif.gif';
 	// import lockIcon from '~icons/mingcute/safe-lock-fill';
-	import LockIcon from '~icons/mingcute/safe-lock-fill';
+	import  lockIcon from '../../../../static/assets/icons/lock_svg.svg'
+	import LockIcon from '~icons/mingcute/safe-lock-fill';``	
 	import UnlockIcon from '~icons/mingcute/safe-lock-line';
 	import { createClient } from '@supabase/supabase-js';
 	import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
@@ -64,18 +65,17 @@
 	{#if isLocked}
 		<!-- <img alt="Smiley face" src={smiley} /> -->
 		<h1>Status: LOCKED</h1>
-		<LockIcon class="icon" />
+		<!-- <LockIcon class="icon" /> -->
+		<img src='https://img.icons8.com/?size=100&id=94&format=png&color=000000' alt="lock icon" />
 	{:else}
 		<h1>Status: UNLOCKED</h1>
 		<!-- <img alt="Concerned face" src={concerned} /> -->
-		<UnlockIcon class="icon" />
+		<!-- <UnlockIcon class="icon" /> -->
+		<img src='https://img.icons8.com/?size=100&id=152&format=png&color=000000' alt="unlock icon" />
+
 	{/if}
-	<button class="toggleButton" on:click={toggleIsLocked}>
-		{#if isLocked}
-			Click to Unlock
-		{:else}
-			Click to Lock
-		{/if}
+	<button class="toggleButton btn variant-filled-primary" on:click={toggleIsLocked}>
+		Toggle Lock
 	</button>
 </div>
 
@@ -95,7 +95,7 @@
 	}
 
 	.toggleButton {
-		margin: 20px;
+		/* margin: 20px; */
 		border: solid;
 		border-color: aliceblue;
 		border-radius: 10px;
