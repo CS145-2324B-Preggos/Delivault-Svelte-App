@@ -1,16 +1,11 @@
 <script lang="ts">
 	import '../app.postcss';
 
-	import { AppShell, AppBar } from '@skeletonlabs/skeleton';
-	import { AppShell, AppBar, Toast, getToastStore, initializeStores, AppRail, AppRailAnchor } from '@skeletonlabs/skeleton';
 	import { PUBLIC_VAPID_KEY } from '$env/static/public';
 
-	import Icon from '@iconify/svelte';
-
-	
 	// Floating UI for Popups
 	import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
-	import { storePopup, initializeStores, Drawer, getDrawerStore } from '@skeletonlabs/skeleton';
+	import { AppShell, AppBar, Toast, getToastStore, storePopup, initializeStores, Drawer, getDrawerStore } from '@skeletonlabs/skeleton';
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 	
 	import Icon from '@iconify/svelte';
