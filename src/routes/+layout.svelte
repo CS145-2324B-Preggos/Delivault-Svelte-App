@@ -1,20 +1,21 @@
 <script lang="ts">
 	import '../app.postcss';
-	import { AppShell, AppBar, Toast, getToastStore, initializeStores, AppRail, AppRailAnchor } from '@skeletonlabs/skeleton';
+
 	import { PUBLIC_VAPID_KEY } from '$env/static/public';
 
-	import Icon from '@iconify/svelte';
-	
 	// Floating UI for Popups
 	import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
-	import { storePopup } from '@skeletonlabs/skeleton';
+	import { AppShell, AppBar, Toast, getToastStore, storePopup, initializeStores, Drawer, getDrawerStore } from '@skeletonlabs/skeleton';
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 	
+	import Icon from '@iconify/svelte';
+
 	// Auth event listener for Supabase
 	import { goto, invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import AppHeaderAuthComponent from '$lib/components/AppHeaderAuthComponent.svelte';
-	import { page } from '$app/stores'
+	import Sidebar from '$lib/components/Sidebar.svelte';
+
 	import { error } from '@sveltejs/kit';
 
 	import toUint8Array from 'urlb64touint8array';
@@ -27,7 +28,6 @@
 	// TODO: implement pushSubscription retrieval from server
 	$: ({ session, supabase } = data);
 	let { pushSubscription } = data;
-	let showSideBar: boolean;
 
 	function askPermission() {
 		return new Promise(function (resolve, reject) {
@@ -44,10 +44,6 @@
 			}
 		});
 	}
-
-    const toggleSidebar = () => {
-        showSideBar = !showSideBar;
-    };
 
 	onMount(() => {
 		const { data } = supabase.auth.onAuthStateChange((event, newSession) => {
@@ -117,16 +113,39 @@
 
 		return () => data.subscription.unsubscribe();
 	});
+
+	initializeStores();
+	const drawerStore = getDrawerStore();
+
+	function drawerOpen(): void {
+		drawerStore.open({});
+	}
 </script>
+
 
 <Toast />
 
+<Drawer width='w-auto'>
+	<Sidebar />
+</Drawer>
+
 <!-- App Shell -->
-<AppShell regionPage="bg-surface-500 text-black">
+<AppShell 
+	regionPage="bg-surface-500 text-black"
+	slotSidebarLeft="w-0 lg:w-auto"
+>
     <svelte:fragment slot="header">
         <!-- App Bar -->
-        <AppBar gridColumns="grid-cols-3" background='bg-primary-500' slotTrail="place-content-end">
+        <AppBar 
+			gridColumns="grid-cols-3" 
+			background='bg-primary-500' 
+			slotTrail="place-content-end"
+			slotLead="place-content-start"
+		>
 			<svelte:fragment slot="lead">
+				<button class="lg:hidden mr-4" on:click={drawerOpen}>
+					<Icon icon="mingcute:menu-fill" class="text-3xl" />
+				</button>
 				<nav>
 					<ul>
 						<a href="/"><strong class="text-xl uppercase">Delivault</strong></a>
@@ -141,20 +160,7 @@
 
     <!-- Sidebar -->
 	<svelte:fragment slot="sidebarLeft">
-		<AppRail background="bg-tertiary-500">
-			<AppRailAnchor href="/" selected={$page.url.pathname === '/'} title="Home">
-				<svelte:fragment slot="lead"><Icon icon="ic:round-home" class="text-3xl"/></svelte:fragment>
-				<span>Home</span>
-			</AppRailAnchor>
-			<AppRailAnchor href="/auth/toggle_lock" selected={$page.url.pathname === '/auth/toggle_lock'} title="Lock">
-				<svelte:fragment slot="lead"><Icon icon="mingcute:lock-fill" class="text-3xl"/></svelte:fragment>
-				<span>Lock</span>
-			</AppRailAnchor>
-			<AppRailAnchor href="/auth/orders" selected={$page.url.pathname === '/auth/orders'} title="Home">
-				<svelte:fragment slot="lead"><Icon icon="mingcute:list-check-3-fill" class="text-3xl"/></svelte:fragment>
-				<span>Orders</span>
-			</AppRailAnchor>
-		</AppRail>
+			<Sidebar />
 	</svelte:fragment>
     <!-- Page Route Content -->
     <slot />
