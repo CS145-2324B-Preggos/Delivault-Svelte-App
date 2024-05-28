@@ -1,3 +1,4 @@
+import { updateOrder } from '$lib/components/ordersComponents/OrderContainer.svelte'
 import { sendControlMessage } from '$lib/server/MQTT.js'
 import { error, json } from '@sveltejs/kit'
 
@@ -5,7 +6,10 @@ import { error, json } from '@sveltejs/kit'
 export async function POST({ request, locals: { supabase, mqttClient } }) {
 
     // console.log(request)
-    const requestArray: { hash_passcode: string, box_id: string }[] = await request.json()
+    const requestArray: { 
+        hash_passcode: string, 
+        box_id: string, 
+        order_id: string }[] = await request.json()
     const requestObject = requestArray[0]
     
     // preprocess requestObject.hash_passcode, truncate to first 16 bytes
@@ -19,22 +23,48 @@ export async function POST({ request, locals: { supabase, mqttClient } }) {
             'hash_passcode', requestObject.hash_passcode
         )
 
-    if (pgError) error(400, `${pgError.code}: ${pgError.details}`)
-    if (data.length == 0) error(400, 'invalid code')
+    if (pgError) {
+        error(400, `${pgError.code}: ${pgError.details}`);
+    }
 
-    const boxResponse = sendControlMessage(mqttClient, requestObject.box_id, "unlock").then(
-        (boxResponse) => {
-            if (boxResponse.success) {
-                const {error: pgError} = supabase
-                    .from("public_orders")
-                    .update({status: true})
-                    .select()
-            
-            if (pgError) {console.log("db update error"); error(500, 'db update failed')}
-            console.log("Box response successful")
-        }}
-    )
-    
+    if (data.length == 0 || data[0].status) {
+        error(400, 'invalid code');
+    }
 
-    return json(`valid code`)
+    async function delay(ms: number): Promise<void> {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    try {
+        const boxResponse = await sendControlMessage(mqttClient, requestObject.box_id, "unlock");
+        if (boxResponse.success) {
+            const { error: updateError } = await supabase
+                .from("public_orders")
+                .update({ status: true })
+                .eq("order_id", data[0].order_id)
+                .select();
+
+            if (updateError) {
+                console.error("db update error", updateError);
+                throw error(500, 'db update failed');
+            }
+            console.log("Box response successful");
+
+            await delay(5000); // wait 5 seconds
+
+            // Lock it again
+            const controlResponse = await sendControlMessage(mqttClient, requestObject.box_id, "lock");
+
+            if (controlResponse.success) {
+                return json({ message: 'valid code' });
+            } else {
+                return json({ error: controlResponse.error }, { status: 500 });
+            }
+        } else {
+            return json({ error: 'Failed to unlock the box' }, { status: 500 });
+        }
+    } catch (err) {
+        console.error("OOPS", err);
+        throw error(500, 'Internal server error');
+    }
 }
