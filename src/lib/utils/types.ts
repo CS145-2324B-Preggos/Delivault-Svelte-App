@@ -5,8 +5,8 @@ export type BoxProcessed = {
 }
 
 export type OrderProcessed = {
-    order_id: number;
-    box_id: number;
+    order_id: string;
+    box_id: string;
     order_name: string;
     password: string;
     courier_details: string;

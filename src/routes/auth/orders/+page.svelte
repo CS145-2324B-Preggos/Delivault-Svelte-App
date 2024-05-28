@@ -23,7 +23,7 @@
 
 	const getAllOrders = async () => {
 		try {
-			let { data, error } = await supabase.from('order').select();
+			let { data, error } = await supabase.from('orders').select();
 			orders = data;
 			console.log(orders);
 		} catch (err) {
@@ -34,7 +34,7 @@
 	const updateOrder = async (order: OrderDBObj) => {
 		try {
 			const { data, error } = await supabase
-				.from('order')
+				.from('orders')
 				.update({
 					order_name: order.order_name,
 					password: order.password,
@@ -50,7 +50,7 @@
 
 	const deleteOrder = async (order: OrderDBObj) => {
 		try {
-			const { data, error } = await supabase.from('order').delete().eq('order_id', order.order_id);
+			const { data, error } = await supabase.from('orders').delete().eq('order_id', order.order_id);
 			await getAllOrders();
 		} catch (err) {
 			console.log(err);
@@ -67,7 +67,7 @@
 		let newOrderId = generateIntegerUUID();
 		const orderDetails = e.detail;
 		try {
-			const { data, error } = await supabase.from('order').insert({
+			const { data, error } = await supabase.from('orders').insert({
 				order_id: newOrderId,
 				box_id: 0, // for now
 				order_name: orderDetails.order_name,

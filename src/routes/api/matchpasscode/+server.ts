@@ -6,7 +6,7 @@ export async function GET({ request, locals }) {
 
         // getting the order with a matching passcode
         const { data, error } = await locals.supabase
-            .from('order')
+            .from('orders')
             .select()
             .eq('password', passRequest.passcode);
 
@@ -43,7 +43,7 @@ export async function POST({ request, locals }) {
     try {
         // update the status of the order in supabase
         const { data, error } = locals.supabase
-            .from('order')
+            .from('orders')
             .update({status: true}) // decideable: do we delete the order with a used passcode?
             .eq('order_id', order.order_id);
 
