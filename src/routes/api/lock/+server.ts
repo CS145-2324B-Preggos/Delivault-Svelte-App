@@ -43,12 +43,12 @@ export async function PATCH({ request, locals } ) {
         console.log("locked status: ", box.locked);
 
         // // Send control message via MQTT
-        // const action = box.locked ? "lock" : "unlock";
-        // const mqTTResponse = await sendControlMessage(locals.mqttClient, box.box_id, action);
+        const action = box.locked ? "lock" : "unlock";
+        const mqTTResponse = await sendControlMessage(locals.mqttClient, box.box_id, action);
 
-        // if (!mqTTResponse.success) {
-        //     throw new Error(mqTTResponse.error);
-        // }
+        if (!mqTTResponse.success) {
+            throw new Error(mqTTResponse.error);
+        }
         // Update the box in Supabase
         const supaResponse = await locals.supabase
             .from('boxes')

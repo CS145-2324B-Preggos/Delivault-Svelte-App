@@ -42,6 +42,10 @@
 		await fetchUserBoxEntry('1000000000000000'); // find a way to identify the specific box id of the current user, pero for now eto muna yung sa box natin
 	});
 
+	function delay(ms: number) {
+ 		return new Promise(resolve => setTimeout(resolve, ms));
+	}
+
 	// updates the 'locked' field of a box database object
 	const updateLockedField = async (box: BoxDBObj) => {
 		const updateResponse = await fetch(`../../api/lock`, {
@@ -81,6 +85,10 @@
 		if (updateResponse.success) {
 			await fetchUserBoxEntry('1000000000000000');
 			console.log(updateResponse.msg, 'lock was toggled to', isLocked);
+			console.log("Box closing in 5 seconds");
+			await delay(5000);
+			await updateLockedField(newBox);
+			await fetchUserBoxEntry('1000000000000000');
 		} else {
 			await fetchUserBoxEntry('1000000000000000');
 			console.log(updateResponse.msg, 'lock is still', isLocked);

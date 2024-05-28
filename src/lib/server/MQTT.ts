@@ -119,6 +119,10 @@ async function verifyPasscode(passcode: string | null): Promise<boolean> {
     }
 }
 
+function delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // helper for when a pass <code> message is received
 async function receivedPasscode(mqtt: MqttClient, message: string, box_id: string) {
 
@@ -127,7 +131,11 @@ async function receivedPasscode(mqtt: MqttClient, message: string, box_id: strin
     // verify the passcode, otherwise true for now
     const isPasscodeCorrect = await verifyPasscode(passcode);
 
-    const sendResponse = await sendControlMessage(mqtt, box_id, isPasscodeCorrect ? "pass valid" : "pass invalid");
+    let sendResponse = await sendControlMessage(mqtt, box_id, isPasscodeCorrect ? "pass valid" : "pass invalid");
+    if (isPasscodeCorrect && sendResponse.success) {
+        await delay(5000);
+        sendResponse = await sendControlMessage(mqtt, box_id, "lock");
+    }
 
     if (sendResponse.success) { // probably think something better for a check
         return {
