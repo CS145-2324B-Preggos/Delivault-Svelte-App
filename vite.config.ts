@@ -11,5 +11,5 @@ export default defineConfig({
 			compiler: 'svelte',
 			autoInstall: true
 		})
-	]
+	],
 });

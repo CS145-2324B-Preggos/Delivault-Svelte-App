@@ -6,7 +6,7 @@ import { MQTT_BROKER_URL, MQTT_BROKER_PRT, MQTT_USERNAME, MQTT_PASSWORD } from '
 import mqtt, { type IClientOptions } from 'mqtt'
 import { onReceived } from '$lib/server/MQTT'
 
-// On server startup, set up the client
+// On server startup, set up the mqtt client
 
 const crt = await fetch("https://assets.emqx.com/data/emqxsl-ca.crt").then(async (response) => await response.blob().then( (blob) => blob.text() ))
 

@@ -1,6 +1,12 @@
 <script lang="ts">
 	import '../app.postcss';
+
 	import { AppShell, AppBar } from '@skeletonlabs/skeleton';
+	import { AppShell, AppBar, Toast, getToastStore, initializeStores, AppRail, AppRailAnchor } from '@skeletonlabs/skeleton';
+	import { PUBLIC_VAPID_KEY } from '$env/static/public';
+
+	import Icon from '@iconify/svelte';
+
 	
 	// Floating UI for Popups
 	import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
@@ -15,10 +21,40 @@
 	import AppHeaderAuthComponent from '$lib/components/AppHeaderAuthComponent.svelte';
 	import Sidebar from '$lib/components/Sidebar.svelte';
 
+	import { page } from '$app/stores'
+	import { error } from '@sveltejs/kit';
+
+	import toUint8Array from 'urlb64touint8array';
+
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
+	initializeStores();
+	const toastStore = getToastStore();
 
 	export let data;
+	// TODO: implement pushSubscription retrieval from server
 	$: ({ session, supabase } = data);
+	let { pushSubscription } = data;
+	let showSideBar: boolean;
+
+	function askPermission() {
+		return new Promise(function (resolve, reject) {
+			const permissionResult = Notification.requestPermission(function (result) {
+			resolve(result);
+			});
+
+			if (permissionResult) {
+			permissionResult.then(resolve, reject);
+			}
+		}).then(function (permissionResult) {
+			if (permissionResult !== 'granted') {
+			throw new Error("We weren't granted permission.");
+			}
+		});
+	}
+
+    const toggleSidebar = () => {
+        showSideBar = !showSideBar;
+    };
 
 	onMount(() => {
 		const { data } = supabase.auth.onAuthStateChange((event, newSession) => {
@@ -39,6 +75,53 @@
 			}
 		});
 
+		// perform this flow iff a user is logged in
+		if (session) {
+			
+			// only request permission if permission has not yet been granted
+			if (Notification.permission != "granted") {
+				toastStore.trigger(
+					{
+						message: "Notifications improve your experience",
+						action: {
+							label: "Allow",
+							response: () => askPermission()
+						}
+					}
+				)
+			}
+			
+			// only request another subscription if a previous subscription does not yet exist or is outdated
+			if (!pushSubscription) {
+				// callback hell to grab the service worker registration, create a push subscription, and then to push the subscription to the server
+				const registration = navigator.serviceWorker.getRegistration().then(
+					(registration) => {
+						registration ??= error(400, "Service Worker not properly registered")
+						registration.pushManager.subscribe(
+							{
+								userVisibleOnly: true,
+								applicationServerKey: toUint8Array(PUBLIC_VAPID_KEY)
+							}
+						).then(
+							(newPushSubscription: PushSubscription) => {
+								console.log(newPushSubscription)
+								fetch('/api/push',{
+									method: 'POST',
+									headers: {
+										'Content-type': 'application/json'
+									},
+									body: JSON.stringify(newPushSubscription)
+								})
+							}
+						)
+					}
+				)
+
+
+			}
+		
+		}
+
 		return () => data.subscription.unsubscribe();
 	});
 
@@ -49,6 +132,9 @@
 		drawerStore.open({});
 	}
 </script>
+
+
+<Toast />
 
 <Drawer width='w-auto'>
 	<Sidebar />
