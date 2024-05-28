@@ -1,4 +1,3 @@
-import { insertBoxDB, selectBoxDB, updateBoxDB, deleteBoxDB } from "$lib/server/BoxSB";
 import type { BoxProcessed } from "$lib/utils/types";
 import type { SupabaseClient } from "@supabase/supabase-js"; 
 // parameters for insertion and update
