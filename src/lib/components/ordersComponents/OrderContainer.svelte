@@ -75,9 +75,9 @@
 			</div>
 		</div>
 
-		<div class="pb-2 flex flex-row  border-solid border-8">
+		<div class="pb-2 flex flex-row justify-center">
 			{#if deliveredToggle}
-                <button type="button" class="btn variant-filled-primary w-1/3 deliverBut"
+                <button type="button" class="btn variant-filled-primary w-1/3 deliverBut mt-2"
                     on:click={() => {
                         toggleButton();
                         order.status = deliveredToggle;
@@ -86,7 +86,7 @@
                 > Delivered
                 </button>
             {:else}
-                <button type="button" class="btn variant-filled-primary w-1/3"
+                <button type="button" class="btn variant-filled-primary w-1/3 mt-2"
                     on:click={() => {
                         toggleButton();
                         order.status = deliveredToggle;
@@ -95,22 +95,12 @@
                 > Mark Delivered?
                 </button>
             {/if}
-			{#if isEditing}
-				<div class="flex flex-row place-items-end border-solid border-8">
-					<button type="button" class="btn variant-filled-primary" on:click={confirmEdit}>
-						Confirm
-					</button>
-					<button type="button" class="btn variant-filled-primary" on:click={cancelEdit}>
-						Cancel
-					</button>
-				</div>
-			{/if}
 		</div>
 	</div>
-	<div class="flex flex-col border-solid border-8">
+	<div class="flex flex-col w-1/5">
 		<button
 			type="button"
-			class="btn variant-filled-primary self-center my-2"
+			class="btn variant-filled-primary self-center my-2 w-full"
 			on:click={() => deleteOrder(order)}
 		> Delete
 		</button>
@@ -122,6 +112,14 @@
                 disabled
             > Edit
             </button>
+            <div class="flex flex-row place-items-end mt-2">
+                <button type="button" class="btn variant-filled-primary w-1/2 mr-2" on:click={cancelEdit}>
+                    Cancel
+                </button>
+                <button type="button" class="btn variant-filled-primary w-1/2" on:click={confirmEdit}>
+                    Confirm
+                </button>
+            </div>
         {:else}
             <button
                 type="button"

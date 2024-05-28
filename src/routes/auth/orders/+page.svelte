@@ -94,7 +94,7 @@
 
 <AppShell
 	regionPage="flex-col pt-3"
-	slotHeader="place-self-center pt-5"
+	slotHeader="pt-5 ml-2"
 	slotPageFooter="place-self-center py-5"
 >
 	<svelte:fragment slot="header">
