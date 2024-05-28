@@ -3,7 +3,6 @@
 import { error } from "@sveltejs/kit";
 import type { MqttClient } from "mqtt";
 import { EventEmitter } from "node:events";
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from "$env/static/public";
 
 export enum HardwareState {
     locked,
@@ -53,11 +52,18 @@ async function prepareForAck(mqtt: MqttClient, expected_topic: string, expected_
 }
 
 // helper for when any control message needs to be sent to a box
-export async function sendControlMessage(mqtt: MqttClient, box_id: string, message: 'lock' | 'unlock' | 'valid' | 'invalid'): Promise<MQTTResponse> {
+export async function sendControlMessage(mqtt: MqttClient, box_id: string, message: 'lock' | 'unlock' | 'pass valid' | 'pass invalid'): Promise<MQTTResponse> {
     mqtt.publish(`ident/${box_id}/in`, message);
-    let mqttResponse = {success: true, new_state: HardwareState.locked, error: "OK"};
+    let mqttResponse = {
+        success: true, 
+        new_state: HardwareState.locked, 
+        error: "OK"
+    };
     await prepareForAck(mqtt, `ident/${box_id}/out`, `ack ${message}`).catch(
-        ( reason ) => mqttResponse = {success: false, new_state: HardwareState.unlocked, error: `${reason}: No acknowledgement received`}
+        ( reason ) => mqttResponse = {
+            success: false, 
+            new_state: HardwareState.unlocked, 
+            error: `${reason}: No acknowledgement received`}
     );
     return mqttResponse;
 }
@@ -72,24 +78,77 @@ export async function sendMasterkey(mqtt: MqttClient, box_id: string, key: strin
     return mqttResponse;
 }
 
-function verifyPasscode(passcode: string | null): boolean {
-    return passcode !== null && passcode.length == 6;
+async function checkPasscodeExists(passcode: string) {
+    // checks first if passcode is in database, i.e., existing order entry
+    const response = await fetch('http://localhost:5173/api/matchpasscode', {
+        method: 'GET',
+        body: JSON.stringify(passcode),
+        headers: {
+            'content-type': 'application/json'
+        }
+    });
+
+    const checkResponse = await response.json();
+
+    // contains success, orderConsumed, and error
+    return checkResponse;
+}
+
+async function verifyPasscode(passcode: string | null): Promise<boolean> {
+    if(passcode !== null && passcode.length == 8){
+        const doesPasscodeExist = await checkPasscodeExists(passcode); // takes in something???
+        // this returns an object
+
+        if (doesPasscodeExist.success) {
+            const isPasscodeValid = await fetch('/api/matchpasscode', {
+                method: 'POST',
+                body: JSON.stringify(passcode), // should take in something???
+                headers: {
+                    'content-type': 'application/json'
+                }
+            });
+
+            const response = await isPasscodeValid.json();
+            return response.success;
+        } else {
+            return false;
+        }
+        
+    } else {
+        return false;
+    }
 }
 
 // helper for when a pass <code> message is received
-function receivedPasscode(mqtt: MqttClient, message: string, box_id: string) {
+async function receivedPasscode(mqtt: MqttClient, message: string, box_id: string) {
 
     const passcode = (/^pass (\d*)$/.exec(message) ?? [null, null])[1];
 
     // verify the passcode, otherwise true for now
-    const isPasscodeCorrect = verifyPasscode(passcode);
+    const isPasscodeCorrect = await verifyPasscode(passcode);
 
-    return sendControlMessage(mqtt, box_id, isPasscodeCorrect ? "valid" : "invalid");
+    const sendResponse = await sendControlMessage(mqtt, box_id, isPasscodeCorrect ? "pass valid" : "pass invalid");
+
+    if (sendResponse.success) { // probably think something better for a check
+        return {
+            success: true, 
+            new_state: sendResponse.new_state, 
+            error: sendResponse.error
+        }; 
+    } else {
+        return {
+            success: false, 
+            new_state: sendResponse.new_state, 
+            error: sendResponse.error
+        }; 
+    }
 }
 
 // helper for destructuring an /out topic from which we might receive a message and getting the identifier
 function topicDestructor(topic: string): string {
-    const identifier = (/\/(\d)*\//.exec(topic) ?? ['a', 'b'])[1];
+    console.log("topic: ", topic);
+    const identifier = (/\/(\d{16})\//.exec(topic) ?? ['a', 'b'])[1];
+    console.log("identifier: ", identifier);
     if(identifier.length != 16) throw error(500, "Topic not properly destructured into box_id");
     return identifier;
 }
@@ -110,7 +169,8 @@ export function onReceived(mqtt: MqttClient, topic: string, message: Buffer) {
 
 export async function toggleLockMQTT(mqtt: MqttClient, box_id: string, box_status: boolean): Promise<MQTTResponse> {
     if (box_status){
-        return sendControlMessage(mqtt, box_id, "unlock");
+        return sendControlMessage(mqtt, box_id, 
+            "unlock");
     } else {
         return sendControlMessage(mqtt, box_id, "lock");
     } 

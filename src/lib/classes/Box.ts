@@ -1,5 +1,3 @@
-import { insertBoxDB, selectBoxDB, updateBoxDB, deleteBoxDB } from "$lib/server/BoxSB";
-import { userID } from "$lib/stores/User";
 import type { BoxProcessed } from "$lib/utils/types";
 import type { SupabaseClient } from "@supabase/supabase-js"; 
 // parameters for insertion and update
@@ -18,8 +16,9 @@ export type BoxResponse = {
 
 // for selecting Boxes e.g., box/es of certain user/s
 export type BoxFilter = {
-    box_id: number;
+    box_id: string;
     user_id: number;
+    locked: boolean;
 }
 
 export class Box {
@@ -27,28 +26,30 @@ export class Box {
     public static toBoxObject(box: BoxProcessed): BoxDBObj {
         return {
 			box_id: box.box_id,
-            user_id: box.user_id
+            user_id: box.user_id,
+            locked: box.locked
 		};
     }
 
-    public static async selectBoxes(
-        filter: BoxFilter = {
-            box_id: 0,
-            user_id: 0
-        }, supabase: SupabaseClient): Promise<BoxResponse> {
-        return selectBoxDB(filter, supabase);
-    }
+    // public static async selectBoxes(
+    //     filter: BoxFilter = {
+    //         box_id: "",
+    //         user_id: 0,
+    //         locked: false
+    //     }, supabase: SupabaseClient): Promise<BoxResponse> {
+    //     return selectBoxDB(filter, supabase);
+    // }
 
-    public static async insertBox(box: BoxDBObj, supabase: SupabaseClient): Promise<BoxResponse> {
-        return insertBoxDB(box, supabase);
-    }
+    // public static async insertBox(box: BoxDBObj, supabase: SupabaseClient): Promise<BoxResponse> {
+    //     return insertBoxDB(box, supabase);
+    // }
 
-    public static async updateBox(box: BoxDBObj, supabase: SupabaseClient): Promise<BoxResponse> {
-        return updateBoxDB(box, supabase);
-    }
+    // public static async updateBox(box: BoxDBObj, supabase: SupabaseClient): Promise<BoxResponse> {
+    //     return updateBoxDB(box, supabase);
+    // }
 
-    public static async deleteBox(box: BoxDBObj, supabase: SupabaseClient): Promise<BoxResponse> {
-        return deleteBoxDB(box.box_id, supabase);
-    }
+    // public static async deleteBox(box: BoxDBObj, supabase: SupabaseClient): Promise<BoxResponse> {
+    //     return deleteBoxDB(box.box_id, supabase);
+    // }
     
 }
