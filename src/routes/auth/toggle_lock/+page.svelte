@@ -4,10 +4,8 @@
 	// import lockIcon from '~icons/mingcute/safe-lock-fill';
 	import LockIcon from '~icons/mingcute/safe-lock-fill';
 	import UnlockIcon from '~icons/mingcute/safe-lock-line';
-	import { createClient } from '@supabase/supabase-js';
-	import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
 	import { onMount } from 'svelte';
-	import type { BoxDBObj } from '$lib/classes/Box.ts';
+	import { type BoxDBObj } from '$lib/classes/Box.js';
 
 	export let data;
 	// load the database
@@ -59,20 +57,31 @@
 
 		if (response.success) {
 			// Update the local state to reflect the change
-			boxOfUser.locked = !box.locked;
-			isLocked = !isLocked;
-			console.log('The box of user value is now updated');
+			isLocked = boxOfUser.locked;
+			return {
+				success: response.success,
+				msg: 'The box of user value is now updated to'
+			}
 		} else {
-			console.log("Updating of lock failed");
+			return {
+				success: response.success,
+				msg: 'Updating of lock failed!'
+			}
 		}
 		
 	};
 
 	const toggleIsLocked = async () => {
-		isLocked = !isLocked;
-		console.log('lock was toggled to', isLocked);
-		await updateLockedField(boxOfUser);
-		
+		const updateResponse = await updateLockedField({
+			box_id: boxOfUser.box_id,
+			user_id: boxOfUser.user_id,
+			locked: !boxOfUser.locked
+		});
+		if (updateResponse.success) {
+			console.log(updateResponse.msg, 'lock was toggled to', isLocked);
+		} else {
+			console.log(updateResponse.msg, 'lock is still', isLocked);
+		}
 	};
 </script>
 

@@ -49,7 +49,8 @@ export async function selectBoxDB(filter: BoxFilter | null, supabase: SupabaseCl
 		for (const row of data) {
 			formattedData.push({
 				box_id: row.box_id,
-				user_id: row.user_id
+				user_id: row.user_id,
+				locked: row.locked
 			});
 		}
 	}
@@ -95,7 +96,8 @@ export async function updateBoxDB(box: BoxDBObj, supabase: SupabaseClient): Prom
 	const boxCheck = await checkBoxExistsDB(
 		{
 			box_id: box.box_id,
-			user_id: 0 // null ata dapat to 
+			user_id: 0, // null ata dapat to 
+			locked: false
 		},
 		supabase
 	);
@@ -126,11 +128,12 @@ export async function updateBoxDB(box: BoxDBObj, supabase: SupabaseClient): Prom
 	return success;
 }
 
-export async function deleteBoxDB(boxID: number, supabase: SupabaseClient): Promise<BoxResponse> {
+export async function deleteBoxDB(boxID: string, supabase: SupabaseClient): Promise<BoxResponse> {
 	const boxCheck = await checkBoxExistsDB(
 		{
 			box_id: boxID,
-			user_id: 0
+			user_id: 0,
+			locked: false
 		},
 		supabase
 	);

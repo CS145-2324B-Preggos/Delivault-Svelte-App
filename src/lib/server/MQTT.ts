@@ -3,7 +3,6 @@
 import { error } from "@sveltejs/kit";
 import type { MqttClient } from "mqtt";
 import { EventEmitter } from "node:events";
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from "$env/static/public";
 
 export enum HardwareState {
     locked,
@@ -54,12 +53,14 @@ async function prepareForAck(mqtt: MqttClient, expected_topic: string, expected_
 
 // helper for when any control message needs to be sent to a box
 export async function sendControlMessage(mqtt: MqttClient, box_id: string, message: 'lock' | 'unlock' | 'valid' | 'invalid'): Promise<MQTTResponse> {
+    console.log("hello");
     mqtt.publish(`ident/${box_id}/in`, message);
     let mqttResponse = {
         success: true, 
         new_state: HardwareState.locked, 
         error: "OK"
     };
+    console.log("bye");
     await prepareForAck(mqtt, `ident/${box_id}/out`, `ack ${message}`).catch(
         ( reason ) => mqttResponse = {
             success: false, 
