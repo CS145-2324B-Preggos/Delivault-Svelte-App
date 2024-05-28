@@ -68,7 +68,7 @@
 			slotLead="place-content-start"
 		>
 			<svelte:fragment slot="lead">
-				<button class="lg:hidden" on:click={drawerOpen}>
+				<button class="lg:hidden mr-4" on:click={drawerOpen}>
 					<Icon icon="mingcute:menu-fill" class="text-3xl" />
 				</button>
 				<nav>
