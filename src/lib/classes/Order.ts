@@ -1,11 +1,10 @@
 import { insertOrderDB, selectOrderDB, updateOrderDB, deleteOrderDB } from "$lib/server/OrderSB";
 import type { OrderProcessed } from "$lib/utils/types";
-import type { SupabaseClient } from "@supabase/supabase-js"; 
 // parameters for insertion and update
 
 export type OrderDBObj = {
-    order_id: number;
-    box_id: number;
+    order_id: string;
+    box_id: string;
     order_name: string;
     password: string;
     courier_details: string;
@@ -21,8 +20,8 @@ export type OrderResponse = {
 
 // for selecting Orders e.g., order/s of certain user/s
 export type OrderFilter = {
-    order_id: number,
-    box_id: number;
+    order_id: string,
+    box_id: string;
     order_name: string;
     status: boolean
 }
@@ -40,8 +39,8 @@ export class Order {
     }
     public static async selectOrders(
         filter: OrderFilter = {
-            order_id: 0,
-            box_id: 0,
+            order_id: "",
+            box_id: "",
             order_name: "",
             status: false
         }): Promise<OrderResponse> {

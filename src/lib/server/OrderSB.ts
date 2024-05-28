@@ -1,4 +1,3 @@
-import { type SupabaseClient } from "@supabase/supabase-js";
 import { type OrderDBObj, type OrderFilter, type OrderResponse } from "$lib/classes/Order";
 import { supabaseFront } from "$lib/stores/SupabaseClient";
 import { createClient } from "@supabase/supabase-js";
@@ -57,6 +56,7 @@ export async function selectOrderDB(filter: Partial<OrderFilter>): Promise<Order
                 box_id: row.box_id,
                 order_name: row.order_name,
                 password: '', 
+                courier_details: "",
                 status: row.status
             });
         }
@@ -135,10 +135,10 @@ export async function updateOrderDB(order: OrderDBObj): Promise<OrderResponse> {
     return success;
 }
 
-export async function deleteOrderDB(orderID: number): Promise<OrderResponse> {
+export async function deleteOrderDB(orderID: string): Promise<OrderResponse> {
     const orderCheck = await checkOrderExistsDB({
         order_id: orderID,
-        box_id: 0,
+        box_id: "",
         order_name: "",
         status: false
     });
