@@ -45,7 +45,7 @@
 	// updates the 'locked' field of a box database object
 	const updateLockedField = async (box: BoxDBObj) => {
 		const updateResponse = await fetch(`../../api/lock`, {
-			method: 'POST',
+			method: 'PATCH',
 			body: JSON.stringify([box]),
 			headers: {
 				'content-type': 'application/json'
@@ -79,8 +79,10 @@
 		}
 		const updateResponse = await updateLockedField(newBox);
 		if (updateResponse.success) {
+			await fetchUserBoxEntry('1000000000000000');
 			console.log(updateResponse.msg, 'lock was toggled to', isLocked);
 		} else {
+			await fetchUserBoxEntry('1000000000000000');
 			console.log(updateResponse.msg, 'lock is still', isLocked);
 		}
 	};
