@@ -88,8 +88,11 @@
 										bind:value={boxID}/> 
 								</div>
 								<div class="ml-2">
-									<button type="button" class="btn variant-filled-primary deliverBut mt-2">
-										Confirm
+									<button 
+										type="button" 
+										class="btn variant-filled-primary deliverBut mt-2"
+										on:click={() => registerBox()}
+									>Confirm
 									</button>
 								</div>
 							</div>
