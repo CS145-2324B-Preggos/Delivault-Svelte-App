@@ -39,7 +39,6 @@ export async function PATCH({ request, locals } ) {
     try {
         const boxResponse = await request.json();
         const box = boxResponse[0];
-        console.log("box id: ", box.box_id);
         console.log("locked status: ", box.locked);
 
         // // Send control message via MQTT
@@ -55,8 +54,6 @@ export async function PATCH({ request, locals } ) {
             .update({locked: box.locked}) 
             .eq('box_id', box.box_id)
             .select();
-
-        console.log("supabase: ", supaResponse);
         if (supaResponse.error) {
             throw supaResponse.error;
         }
