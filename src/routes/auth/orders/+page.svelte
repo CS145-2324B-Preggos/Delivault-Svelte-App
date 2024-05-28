@@ -6,6 +6,7 @@
 	import type { Order, OrderDBObj } from "$lib/classes/Order";
   import { onMount } from "svelte";
   import { v4 as uuidv4 } from 'uuid';
+	import { AppShell } from "@skeletonlabs/skeleton";
 
   export let data;
 
@@ -96,60 +97,25 @@
   />
 </AddOrderScreen>
 
-<main>
-  <div class="mainContainer">
-    <h1>My orders</h1>
-    <div class="middleContainer">
-      <div class="orderListContainer">
-        {#each orders as order (order.order_id)}
-          <OrderContainer {order} {updateOrder} {deleteOrder} />
-        {:else}
-          <p>No Orders Yet</p>
-        {/each}
-      </div>
+<AppShell regionPage="flex-row place-items-center pt-3" slotHeader="place-self-center pt-5" slotPageFooter="place-self-center py-5">
+  <svelte:fragment slot="header">
+    <strong class="text-xl uppercase pt-5">My orders</strong>
+  </svelte:fragment>
+  
+  {#each orders as order (order.order_id)}
+    <div class="m-2"><OrderContainer {order} {updateOrder} {deleteOrder} /></div>
+    <div class="pt-2"></div>
+  {:else}
+    <div class="card variant-ghost-primary w-64 h-10 flex flex-row place-content-center">
+      <section class="place-self-center">No Orders Yet</section>
     </div>
-    <button class="addOrderButton" on:click={toggleAddOrderScreen}>Add orders</button>
-  </div>
-</main>
+  {/each}
 
-<style>
-  main {
-    display: flex;
-    justify-content: center;
-    padding: 0;
-    max-width: 240px;
-    margin: 0 auto;
-  }
-  @media (min-width: 640px) {
-    main {
-      max-width: none;
-    }
-    .mainContainer {
-      display: flex;
-      flex-direction: column;
-    }
-    .middleContainer {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-    }
-    .addOrderButton {
-      margin: 10px;
-      align-self: flex-start;
-    }
-  }
+  <svelte:fragment slot="pageFooter">
+    <button type="button" class="btn variant-filled-primary" on:click={toggleAddOrderScreen}>
+      Add orders
+    </button>
+  </svelte:fragment>  
+</AppShell>
 
-  .addOrderButton {
-    color: white;
-    background-color: #808080;
-    border: none;
-    padding: 8px 16px;
-    cursor: pointer;
-    border-radius: 4px;
-    margin-top: 20px; /* Add margin to create space between the button and the orders */
-  }
 
-  .addOrderButton:hover {
-    background-color: #606060;
-  }
-</style>
