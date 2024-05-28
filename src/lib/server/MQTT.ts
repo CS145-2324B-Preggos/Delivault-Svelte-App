@@ -29,7 +29,7 @@ async function waitForAck(target: EventEmitter) {
         // if no ack heard, reject
         setTimeout(
             () => { reject("ACKTIMEOUT"); console.log("ACKTIMEOUT"); },
-            20000
+            8000
         )
     })
 }
