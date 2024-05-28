@@ -1,8 +1,7 @@
-import { sendControlMessage, type MQTTResponse } from '$lib/server/MQTT.js'
 import { error, json } from '@sveltejs/kit'
 
 // check an 8-character passcode to see if it is valid
-export async function POST({ request, locals: { supabase, mqttClient } }) {
+export async function POST({ request, locals: { supabase } }) {
 
     // console.log(request)
     const requestArray: { 
@@ -27,38 +26,18 @@ export async function POST({ request, locals: { supabase, mqttClient } }) {
     }
 
     if (data.length == 0 || data[0].status) {
-        sendControlMessage(mqttClient, requestObject.box_id, "pass invalid");
-        error(400, 'invalid code');
+        error(401, 'pass invalid');
     }
 
-    async function delay(ms: number): Promise<void> {
-        return new Promise(resolve => setTimeout(resolve, ms));
+    const { error: updateError } = await supabase
+        .from("public_orders")
+        .update({ status: true })
+        .eq("order_id", data[0].order_id)
+        .select();
+
+    if (updateError) {
+        return error(501, 'update failed')
     }
 
-    sendControlMessage(mqttClient, requestObject.box_id, "pass valid").then(
-        (boxResponse) => resolveValidPasscode(boxResponse, data[0])
-    )
-
-    return json({ message: 'valid code' })
-
-    async function resolveValidPasscode(boxResponse: MQTTResponse, data: { hash_passcode: string, box_id: string, order_id: string }) {
-        if (boxResponse.success) {
-            const { error: updateError } = await supabase
-                .from("public_orders")
-                .update({ status: true })
-                .eq("order_id", data.order_id)
-                .select();
-    
-            if (updateError) {
-                console.error("db update error", updateError);
-                throw error(501, 'db update failed');
-            }
-            console.log("Box response successful");
-    
-            await delay(5000); // wait 5 seconds
-    
-            // Lock it again
-            sendControlMessage(mqttClient, requestObject.box_id, "lock");
-        }
-    }
+    return json({ message: 'valid code' }, { status: 200, statusText: 'pass valid' })
 }
