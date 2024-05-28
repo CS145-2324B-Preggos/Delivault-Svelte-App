@@ -72,11 +72,12 @@
 	};
 
 	const toggleIsLocked = async () => {
-		const updateResponse = await updateLockedField({
+		let newBox: BoxDBObj = {
 			box_id: boxOfUser.box_id,
 			user_id: boxOfUser.user_id,
 			locked: !boxOfUser.locked
-		});
+		}
+		const updateResponse = await updateLockedField(newBox);
 		if (updateResponse.success) {
 			console.log(updateResponse.msg, 'lock was toggled to', isLocked);
 		} else {

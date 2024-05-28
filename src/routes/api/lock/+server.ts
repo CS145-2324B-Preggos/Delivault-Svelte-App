@@ -38,40 +38,39 @@ export async function POST({ request, locals } ) {
 	// this now should send a signal to the broker to lock and unlock, and should update the box in supabase
     try {
         const boxResponse = await request.json();
-        const { box_id, locked } = boxResponse;
+        const box = boxResponse[0];
+        console.log("box id: ", box.box_id);
+        console.log("locked status: ", box.locked);
 
         // Send control message via MQTT
-        const action = locked ? "unlock" : "lock";
-        // const mqTTResponse = await sendControlMessage(locals.mqttClient, box_id, action);
+        const action = box.locked ? "lock" : "unlock";
+        const mqTTResponse = await sendControlMessage(locals.mqttClient, box.box_id, action);
 
-        // if (!mqTTResponse.success) {
-        //     throw new Error(mqTTResponse.error);
-        // }
+        if (!mqTTResponse.success) {
+            throw new Error(mqTTResponse.error);
+        }
         // Update the box in Supabase
         const { data, error } = locals.supabase
             .from('box')
-            .update({
-                locked: !locked
-            })
-            .eq('box_id', box_id);
+            .update({locked: box.locked}) 
+            .eq('box_id', box.box_id);
 
+        console.log("supabase: ", data);
         if (error) {
             throw error;
         }
 
         return json({
             success: true,
-            lockStatus: locked,
+            lockStatus: box.locked,
             error: null
         });
 
         
     } catch (error) {
-        const boxResponse = await request.json();
-        const { locked } = boxResponse;
         return json({
             success: false,
-            lockStatus: locked,
+            lockStatus: null,
             error: error
         }); 
     }

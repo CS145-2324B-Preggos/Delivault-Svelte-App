@@ -52,15 +52,13 @@ async function prepareForAck(mqtt: MqttClient, expected_topic: string, expected_
 }
 
 // helper for when any control message needs to be sent to a box
-export async function sendControlMessage(mqtt: MqttClient, box_id: string, message: 'lock' | 'unlock' | 'valid' | 'invalid'): Promise<MQTTResponse> {
-    console.log("hello");
+export async function sendControlMessage(mqtt: MqttClient, box_id: string, message: 'lock' | 'unlock' | 'pass valid' | 'pass invalid'): Promise<MQTTResponse> {
     mqtt.publish(`ident/${box_id}/in`, message);
     let mqttResponse = {
         success: true, 
         new_state: HardwareState.locked, 
         error: "OK"
     };
-    console.log("bye");
     await prepareForAck(mqtt, `ident/${box_id}/out`, `ack ${message}`).catch(
         ( reason ) => mqttResponse = {
             success: false, 
@@ -82,7 +80,7 @@ export async function sendMasterkey(mqtt: MqttClient, box_id: string, key: strin
 
 async function checkPasscodeExists(passcode: string) {
     // checks first if passcode is in database, i.e., existing order entry
-    const response = await fetch('../../routes/api/matchpasscode', {
+    const response = await fetch('http://localhost:5173/api/matchpasscode', {
         method: 'GET',
         body: JSON.stringify(passcode),
         headers: {
@@ -102,7 +100,7 @@ async function verifyPasscode(passcode: string | null): Promise<boolean> {
         // this returns an object
 
         if (doesPasscodeExist.success) {
-            const isPasscodeValid = await fetch('../../routes/api/matchpasscode', {
+            const isPasscodeValid = await fetch('/api/matchpasscode', {
                 method: 'POST',
                 body: JSON.stringify(passcode), // should take in something???
                 headers: {
@@ -129,7 +127,7 @@ async function receivedPasscode(mqtt: MqttClient, message: string, box_id: strin
     // verify the passcode, otherwise true for now
     const isPasscodeCorrect = await verifyPasscode(passcode);
 
-    const sendResponse = await sendControlMessage(mqtt, box_id, isPasscodeCorrect ? "valid" : "invalid");
+    const sendResponse = await sendControlMessage(mqtt, box_id, isPasscodeCorrect ? "pass valid" : "pass invalid");
 
     if (sendResponse.success) { // probably think something better for a check
         return {
@@ -148,7 +146,9 @@ async function receivedPasscode(mqtt: MqttClient, message: string, box_id: strin
 
 // helper for destructuring an /out topic from which we might receive a message and getting the identifier
 function topicDestructor(topic: string): string {
-    const identifier = (/\/(\d)*\//.exec(topic) ?? ['a', 'b'])[1];
+    console.log("topic: ", topic);
+    const identifier = (/\/(\d{16})\//.exec(topic) ?? ['a', 'b'])[1];
+    console.log("identifier: ", identifier);
     if(identifier.length != 16) throw error(500, "Topic not properly destructured into box_id");
     return identifier;
 }
@@ -169,7 +169,8 @@ export function onReceived(mqtt: MqttClient, topic: string, message: Buffer) {
 
 export async function toggleLockMQTT(mqtt: MqttClient, box_id: string, box_status: boolean): Promise<MQTTResponse> {
     if (box_status){
-        return sendControlMessage(mqtt, box_id, "unlock");
+        return sendControlMessage(mqtt, box_id, 
+            "unlock");
     } else {
         return sendControlMessage(mqtt, box_id, "lock");
     } 
