@@ -7,7 +7,7 @@ export async function GET({ locals: { supabase, user } }) {
     
     const {data, error} = await supabase.from("pushSubscription").select().eq('user_uid', user.id)
 
-    if (!data) return new Response( null, {status: 404, statusText: "Push subscription not found"} )
+    if (!data) return new Response( JSON.stringify(null), {status: 404, statusText: "Push subscription not found"} )
 
     return new Response( JSON.stringify(data[0].subscription), { 
         status: error ? 500 : 200, 
