@@ -1,5 +1,4 @@
-import { updateOrder } from '$lib/components/ordersComponents/OrderContainer.svelte'
-import { sendControlMessage } from '$lib/server/MQTT.js'
+import { sendControlMessage, type MQTTResponse } from '$lib/server/MQTT.js'
 import { error, json } from '@sveltejs/kit'
 
 // check an 8-character passcode to see if it is valid
@@ -8,8 +7,8 @@ export async function POST({ request, locals: { supabase, mqttClient } }) {
     // console.log(request)
     const requestArray: { 
         hash_passcode: string, 
-        box_id: string, 
-        order_id: string }[] = await request.json()
+        box_id: string
+                        }[] = await request.json()
     const requestObject = requestArray[0]
     
     // preprocess requestObject.hash_passcode, truncate to first 16 bytes
@@ -36,36 +35,30 @@ export async function POST({ request, locals: { supabase, mqttClient } }) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    try {
-        const boxResponse = await sendControlMessage(mqttClient, requestObject.box_id, "pass valid");
+    sendControlMessage(mqttClient, requestObject.box_id, "pass valid").then(
+        (boxResponse) => resolveValidPasscode(boxResponse, data[0])
+    )
+
+    return json({ message: 'valid code' })
+
+    async function resolveValidPasscode(boxResponse: MQTTResponse, data: { hash_passcode: string, box_id: string, order_id: string }) {
         if (boxResponse.success) {
             const { error: updateError } = await supabase
                 .from("public_orders")
                 .update({ status: true })
-                .eq("order_id", data[0].order_id)
+                .eq("order_id", data.order_id)
                 .select();
-
+    
             if (updateError) {
                 console.error("db update error", updateError);
                 throw error(500, 'db update failed');
             }
             console.log("Box response successful");
-
+    
             await delay(5000); // wait 5 seconds
-
+    
             // Lock it again
-            const controlResponse = await sendControlMessage(mqttClient, requestObject.box_id, "lock");
-
-            if (controlResponse.success) {
-                return json({ message: 'valid code' });
-            } else {
-                return json({ error: controlResponse.error }, { status: 500 });
-            }
-        } else {
-            return json({ error: 'Failed to unlock the box' }, { status: 500 });
+            sendControlMessage(mqttClient, requestObject.box_id, "lock");
         }
-    } catch (err) {
-        console.error("OOPS", err);
-        throw error(500, 'Internal server error');
     }
 }
