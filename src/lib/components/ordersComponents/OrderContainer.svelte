@@ -34,98 +34,121 @@
     }
 </script>
 
+<div
+	class=" flex flex-row card variant-ghost-primary card-hover w-full p-5 space-y-2"
+	class:delivered={order.status}
+>
+	<div class="flex flex-col w-full">
+		<div class="flex flex-row justify-start">
+			<div class="flex flex-col mr-5">
+				<p class="py-2 font-bold">Order Name</p>
+				<p class="py-2 font-bold">Password</p>
+				<p class="py-2 font-bold">Courier Contact</p>
+			</div>
 
-<div class="card variant-ghost-primary card-hover w-full p-5 space-y-2" class:delivered={order.status}>
-    <div class="grid grid-cols-5 justify-start">
-        <div class="">
-            <p class="py-2">Order Name</p>
-            <p class="py-2">Password</p>
-            <p class="py-2">Courier Contact </p>
-            
-        </div>
+			<div class="flex flex-col flex-grow mr-2">
+				{#if isEditing}
+					<p class="py-1">
+						<input
+							class="input"
+							type="text"
+							bind:value={editedOrderName}
+							placeholder="Order Name"
+						/>
+					</p>
+					<p class="py-1">
+						<input class="input" type="text" bind:value={editedPassword} placeholder="Password" />
+					</p>
+					<p class="py-1">
+						<input
+							class="input"
+							type="text"
+							bind:value={editedCourier}
+							placeholder="Courier Contact Number"
+						/>
+					</p>
+				{:else}
+					<p class="py-2">{order.order_name}</p>
+					<p class="py-2">{order.password}</p>
+					<p class="py-2">{order.courier_details}</p>
+				{/if}
+			</div>
+		</div>
 
-        <div class="col-span-3 flex-grow">    
-            {#if isEditing}
-                <p class="py-1"><input 
-                    class="input" 
-                    type="text" 
-                    bind:value={editedOrderName} 
-                    placeholder="Order Name" 
-                /></p>
-                <p class="py-1"><input 
-                    class="input" 
-                    type="text" 
-                    bind:value={editedPassword} 
-                    placeholder="Password" 
-                /></p>
-                <p class="py-1"><input 
-                    class="input" 
-                    type="text" 
-                    bind:value={editedCourier} 
-                    placeholder="Courier Contact Number" 
-                /></p>
-            {:else}
-                <p class="py-2">{order.order_name}</p>
-                <p class="py-2">{order.password}</p>
-                <p class="py-2">{order.courier_details}</p>
-            {/if}
-
-        </div>
-
-        <div class="">
-            <p class="py-3">
-                <button type="button" class="btn variant-filled-primary w-full" on:click={() => deleteOrder(order)}>
-                    Delete
+		<div class="pb-2 flex flex-row  border-solid border-8">
+			{#if deliveredToggle}
+                <button type="button" class="btn variant-filled-primary w-1/3 deliverBut"
+                    on:click={() => {
+                        toggleButton();
+                        order.status = deliveredToggle;
+                        updateOrder(order);
+                    }} 
+                > Delivered
                 </button>
-            </p>
-            {#if isEditing}
-                <p class="col-span-1"><button type="button" class="btn variant-filled-primary w-1/2" on:click={confirmEdit}>
-                    Confirm
-                </button>
-                <button type="button" class="btn variant-filled-primary w-1/2" on:click={cancelEdit}>
-                    Cancel
-                </button></p>
             {:else}
-                <p><button type="button" class="btn variant-filled-primary w-full" on:click={startEditing}>
-                    Edit
-                </button></p>
+                <button type="button" class="btn variant-filled-primary w-1/3"
+                    on:click={() => {
+                        toggleButton();
+                        order.status = deliveredToggle;
+                        updateOrder(order);
+                    }} 
+                > Mark Delivered?
+                </button>
             {/if}
-        </div>
-    </div>
-    
-    <p>
-        {#if deliveredToggle}
-            <button type="button" class="btn variant-filled-primary w-1/3 deliverBut"
-                on:click={() => {
-                    toggleButton();
-                    order.status = deliveredToggle;
-                    updateOrder(order);
-                }} 
-            > Delivered
+			{#if isEditing}
+				<div class="flex flex-row place-items-end border-solid border-8">
+					<button type="button" class="btn variant-filled-primary" on:click={confirmEdit}>
+						Confirm
+					</button>
+					<button type="button" class="btn variant-filled-primary" on:click={cancelEdit}>
+						Cancel
+					</button>
+				</div>
+			{/if}
+		</div>
+	</div>
+	<div class="flex flex-col border-solid border-8">
+		<button
+			type="button"
+			class="btn variant-filled-primary self-center my-2"
+			on:click={() => deleteOrder(order)}
+		> Delete
+		</button>
+
+		{#if isEditing}
+            <button
+                type="button"
+                class="btn variant-filled-primary w-full self-center deliverBut"
+                disabled
+            > Edit
             </button>
         {:else}
-            <button type="button" class="btn variant-filled-primary w-1/3"
-                on:click={() => {
-                    toggleButton();
-                    order.status = deliveredToggle;
-                    updateOrder(order);
-                }} 
-            > Mark Delivered?
+            <button
+                type="button"
+                class="btn variant-filled-primary w-full self-center"
+                on:click={startEditing}
+            > Edit
             </button>
         {/if}
-        
-    </p>
+	</div>
 </div>
 
 <style>
     button {
         border-radius: 4px; 
     }
+	button {
+		border-radius: 4px;
+	}
 
     /* Style buttons on hover */
     button:hover {
         background-color: #4d4b4b; /* Darken the background color on hover */
     }
+	/* Style buttons on hover */
+	button:hover {
+		background-color: #606060; /* Darken the background color on hover */
+	}
 
     .delivered {
         opacity: 0.5
@@ -135,15 +158,17 @@
         background-color: #4d4b4b;
     }
 
+	.delivered {
+		opacity: 0.5;
+	}
 
-    .input { 
-        padding: 5px 12px;
-        font-size: 14px;
-        line-height: 20px;
-        vertical-align: middle;
-        background-color: #ffffff;
-        border: 1px solid #e1e4e8;
-        border-radius: 6px;
-    }
-
+	.input {
+		padding: 5px 12px;
+		font-size: 14px;
+		line-height: 20px;
+		vertical-align: middle;
+		background-color: #ffffff;
+		border: 1px solid #e1e4e8;
+		border-radius: 6px;
+	}
 </style>
