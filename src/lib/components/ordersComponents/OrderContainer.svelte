@@ -31,55 +31,43 @@
 
 
 <div class="card variant-ghost-primary card-hover w-full p-5 space-y-2" class:delivered={order.status}>
-    <div class="grid grid-cols-5 gap-2 justify-start">
-        <div>
+    <div class="grid grid-cols-5 justify-start">
+        <div class="">
             <p class="py-2">Order Name</p>
             <p class="py-2">Password</p>
             <p class="py-2">Courier Contact </p>
             
-            <p class="pb-2">
-                <input 
-                    class="checkbox" 
-                    type="checkbox"
-                    id="delivered-checkbox"
-                    checked={order.status} 
-                    on:change={(e) => {
-                        order.status = e.currentTarget.checked;
-                        updateOrder(order);
-                    }} 
-                /> Delivered?
-
-            </p>
         </div>
 
-        <div class="col-span-3">    
+        <div class="col-span-3 flex-grow">    
             {#if isEditing}
-                <input 
+                <p class="py-1"><input 
                     class="input" 
                     type="text" 
                     bind:value={editedOrderName} 
                     placeholder="Order Name" 
-                />
-                <input 
+                /></p>
+                <p class="py-1"><input 
                     class="input" 
                     type="text" 
                     bind:value={editedPassword} 
                     placeholder="Password" 
-                />
-                <input 
+                /></p>
+                <p class="py-1"><input 
                     class="input" 
                     type="text" 
                     bind:value={editedCourier} 
                     placeholder="Courier Contact Number" 
-                />
+                /></p>
             {:else}
                 <p class="py-2">{order.order_name}</p>
                 <p class="py-2">{order.password}</p>
                 <p class="py-2">{order.courier_details}</p>
             {/if}
+
         </div>
 
-        <div>
+        <div class="">
             <!-- <p>
                 <button type="button" class="btn variant-filled-primary butRow1"
                 on:click={(e) => {
@@ -98,7 +86,7 @@
                 </button>
             </p>
             {#if isEditing}
-                <p><button type="button" class="btn variant-filled-primary w-1/2" on:click={confirmEdit}>
+                <p class="col-span-1"><button type="button" class="btn variant-filled-primary w-1/2" on:click={confirmEdit}>
                     Confirm
                 </button>
                 <button type="button" class="btn variant-filled-primary w-1/2" on:click={cancelEdit}>
@@ -111,11 +99,24 @@
             {/if}
         </div>
     </div>
+
+    <p class="pb-2 place-self-center">
+        <input 
+            class="checkbox" 
+            type="checkbox"
+            id="delivered-checkbox"
+            checked={order.status} 
+            on:change={(e) => {
+                order.status = e.currentTarget.checked;
+                updateOrder(order);
+            }} 
+        /> Delivered?
+
+    </p>
 </div>
 
 <style>
     button {
-        color: white; 
         border-radius: 4px; 
 
     }
@@ -125,18 +126,18 @@
         background-color: #606060; /* Darken the background color on hover */
     }
 
-    .butRow1 {width: 200px;}
-    .butRow2 {width: 100px;}
-
     .delivered {
         opacity: 0.5
     }
-    .delivered input[type="text"] {
-        text-decoration: line-through;
-    }
 
-    input[type="text"] {
-		color: blue; /* Change font color for input text and submit button */
-	}
+    .input { 
+        padding: 5px 12px;
+        font-size: 14px;
+        line-height: 20px;
+        vertical-align: middle;
+        background-color: #ffffff;
+        border: 1px solid #e1e4e8;
+        border-radius: 6px;
+    }
 
 </style>
