@@ -1,6 +1,7 @@
 export type BoxProcessed = {
-    box_id: number;
+    box_id: string;
     user_id: number;
+    locked: boolean;
 }
 
 export type OrderProcessed = {
