@@ -64,14 +64,14 @@
 <div class="buttonContainer">
 	{#if isLocked}
 		<!-- <img alt="Smiley face" src={smiley} /> -->
-		<h1>Status: LOCKED</h1>
+		<h1 class="m-2">Status: LOCKED</h1>
 		<!-- <LockIcon class="icon" /> -->
-		<img src='https://img.icons8.com/?size=100&id=94&format=png&color=000000' alt="lock icon" />
+		<img class="m-2" src='https://img.icons8.com/?size=100&id=94&format=png&color=000000' alt="lock icon" />
 	{:else}
-		<h1>Status: UNLOCKED</h1>
+		<h1 class="m-2">Status: UNLOCKED</h1>
 		<!-- <img alt="Concerned face" src={concerned} /> -->
 		<!-- <UnlockIcon class="icon" /> -->
-		<img src='https://img.icons8.com/?size=100&id=152&format=png&color=000000' alt="unlock icon" />
+		<img class="m-2" src='https://img.icons8.com/?size=100&id=152&format=png&color=000000' alt="unlock icon" />
 
 	{/if}
 	<button class="toggleButton btn variant-filled-primary" on:click={toggleIsLocked}>
