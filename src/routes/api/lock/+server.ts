@@ -10,7 +10,7 @@ export async function GET({ url, locals }) {
         const box_id = url.searchParams.get('box_id');
         
         const { data, error } = await locals.supabase
-            .from('box')
+            .from('boxes')
             .select()
             .eq('box_id', box_id);
 
@@ -51,7 +51,7 @@ export async function PATCH({ request, locals } ) {
         // }
         // Update the box in Supabase
         const supaResponse = await locals.supabase
-            .from('box')
+            .from('boxes')
             .update({locked: box.locked}) 
             .eq('box_id', box.box_id)
             .select();
