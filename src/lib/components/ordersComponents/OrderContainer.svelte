@@ -7,6 +7,7 @@
     let originalOrderName = order.order_name;
     let originalPassword = order.password;
     let originalCourier = order.courier_details;
+    let deliveredToggle = false
 
     const startEditing = () => {
         isEditing = true;
@@ -27,6 +28,10 @@
         editedPassword = originalPassword;
         editedCourier = originalCourier;
     };
+
+    const toggleButton = () => {
+        deliveredToggle = !deliveredToggle;
+    }
 </script>
 
 
@@ -68,18 +73,6 @@
         </div>
 
         <div class="">
-            <!-- <p>
-                <button type="button" class="btn variant-filled-primary butRow1"
-                on:click={(e) => {
-                    order.status = e.currentTarget.checked;
-                    updateOrder(order);
-                }} 
-                >
-                    Mark Delivered
-                </button>
-            </p> -->
-
-
             <p class="py-3">
                 <button type="button" class="btn variant-filled-primary w-full" on:click={() => deleteOrder(order)}>
                     Delete
@@ -99,36 +92,49 @@
             {/if}
         </div>
     </div>
-
-    <p class="pb-2 place-self-center">
-        <input 
-            class="checkbox" 
-            type="checkbox"
-            id="delivered-checkbox"
-            checked={order.status} 
-            on:change={(e) => {
-                order.status = e.currentTarget.checked;
-                updateOrder(order);
-            }} 
-        /> Delivered?
-
+    
+    <p>
+        {#if deliveredToggle}
+            <button type="button" class="btn variant-filled-primary w-1/3 deliverBut"
+                on:click={() => {
+                    toggleButton();
+                    order.status = deliveredToggle;
+                    updateOrder(order);
+                }} 
+            > Delivered
+            </button>
+        {:else}
+            <button type="button" class="btn variant-filled-primary w-1/3"
+                on:click={() => {
+                    toggleButton();
+                    order.status = deliveredToggle;
+                    updateOrder(order);
+                }} 
+            > Mark Delivered?
+            </button>
+        {/if}
+        
     </p>
 </div>
 
 <style>
     button {
         border-radius: 4px; 
-
     }
 
     /* Style buttons on hover */
     button:hover {
-        background-color: #606060; /* Darken the background color on hover */
+        background-color: #4d4b4b; /* Darken the background color on hover */
     }
 
     .delivered {
         opacity: 0.5
     }
+
+    .deliverBut {
+        background-color: #4d4b4b;
+    }
+
 
     .input { 
         padding: 5px 12px;
