@@ -55,9 +55,16 @@ async function prepareForAck(mqtt: MqttClient, expected_topic: string, expected_
 // helper for when any control message needs to be sent to a box
 export async function sendControlMessage(mqtt: MqttClient, box_id: string, message: 'lock' | 'unlock' | 'valid' | 'invalid'): Promise<MQTTResponse> {
     mqtt.publish(`ident/${box_id}/in`, message);
-    let mqttResponse = {success: true, new_state: HardwareState.locked, error: "OK"};
+    let mqttResponse = {
+        success: true, 
+        new_state: HardwareState.locked, 
+        error: "OK"
+    };
     await prepareForAck(mqtt, `ident/${box_id}/out`, `ack ${message}`).catch(
-        ( reason ) => mqttResponse = {success: false, new_state: HardwareState.unlocked, error: `${reason}: No acknowledgement received`}
+        ( reason ) => mqttResponse = {
+            success: false, 
+            new_state: HardwareState.unlocked, 
+            error: `${reason}: No acknowledgement received`}
     );
     return mqttResponse;
 }
@@ -121,7 +128,21 @@ async function receivedPasscode(mqtt: MqttClient, message: string, box_id: strin
     // verify the passcode, otherwise true for now
     const isPasscodeCorrect = await verifyPasscode(passcode);
 
-    return sendControlMessage(mqtt, box_id, isPasscodeCorrect ? "valid" : "invalid");
+    const sendResponse = await sendControlMessage(mqtt, box_id, isPasscodeCorrect ? "valid" : "invalid");
+
+    if (sendResponse.success) { // probably think something better for a check
+        return {
+            success: true, 
+            new_state: sendResponse.new_state, 
+            error: sendResponse.error
+        }; 
+    } else {
+        return {
+            success: false, 
+            new_state: sendResponse.new_state, 
+            error: sendResponse.error
+        }; 
+    }
 }
 
 // helper for destructuring an /out topic from which we might receive a message and getting the identifier
