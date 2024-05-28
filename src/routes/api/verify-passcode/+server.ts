@@ -6,7 +6,7 @@ export async function POST({ request, locals: { supabase, mqttClient } }) {
 
     const requestObject: { hash_passcode: string, box_id: string } = await request.json()
     
-    let {data, error: pgError} = await supabase
+    const {data, error: pgError} = await supabase
         .from("orders")
         .select()
         .eq(
@@ -21,7 +21,7 @@ export async function POST({ request, locals: { supabase, mqttClient } }) {
     const boxResponse = await sendControlMessage(mqttClient, requestObject.box_id, "unlock")
 
     if (boxResponse.success) {
-        let {error: pgError} = await supabase
+        const {error: pgError} = await supabase
             .from("orders")
             .update({status: true})
             .select()
