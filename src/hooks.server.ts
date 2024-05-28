@@ -22,7 +22,7 @@ const options: IClientOptions = {
 
 // Initialize and connect the mqtt client
 const client = mqtt.connect(options)
-//client.subscribe('ident/+/out')
+client.subscribe('ident/+/out')
 client.publish("sys/log", "Hello, world!")
 
 client.on(
