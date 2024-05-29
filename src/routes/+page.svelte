@@ -121,14 +121,3 @@
 	<!-- </div> -->
 
 </AppShell>
-
-<style>
-	.input {
-		font-size: 14px;
-		line-height: 20px;
-		vertical-align: middle;
-		background-color: #ffffff;
-		border: 1px solid #e1e4e8;
-		border-radius: 6px;
-	}
-</style>

@@ -21,14 +21,27 @@ const options: IClientOptions = {
 }
 
 // Initialize and connect the mqtt client
-const client = mqtt.connect(options)
-client.subscribe('ident/+/out')
-client.publish("sys/log", "Hello, world!")
+const client = mqtt.connect(options);
 
-client.on(
-  'connect',
-  () => console.log("Connected the server to the broker!")
-)
+client.on('connect', () => {
+  console.log("Connected the server to the broker!");
+
+  // Subscribe with QoS level 2
+  client.subscribe('ident/+/out', { qos: 2 }, (err, granted) => {
+    if (err) {
+      console.error('Subscription error:', err.message);
+    } else {
+      console.log('Subscribed to:', granted.map(grant => `${grant.topic} with QoS ${grant.qos}`).join(', '));
+    }
+  });
+
+  // Send initial message
+  client.publish("sys/log", "Hello, world!", { qos: 2 }, (err) => {
+    if (err) {
+      console.error('Publish error:', err.message);
+    }
+  });
+});
 
 client.on(
   'error',
@@ -123,7 +136,11 @@ const mqttClient: Handle = async({event, resolve}) => {
   if(!event.locals.session || !event.locals.user) return resolve(event)
 
   event.locals.mqttClient = client
-  client.publish("sys/log", `Visited ${event.url}`)
+  client.publish("sys/log", `Visited ${event.url}`, { qos: 2 }, (err) => {
+    if (err) {
+      console.error('Publish error:', err.message);
+    }
+  });
 
   return resolve(event)
 }
