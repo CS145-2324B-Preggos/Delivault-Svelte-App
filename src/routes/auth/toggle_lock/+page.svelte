@@ -2,18 +2,21 @@
 	// import smiley from './images/smileyface.jpg';
 	// import concerned from './images/gif.gif';
 	// import lockIcon from '~icons/mingcute/safe-lock-fill';
-	import  lockIcon from '../../../../static/assets/icons/lock_svg.svg'
-	import LockIcon from '~icons/mingcute/safe-lock-fill';``	
+	import lockIcon from '../../../../static/assets/icons/lock_svg.svg';
+	import LockIcon from '~icons/mingcute/safe-lock-fill';
+	``;
 	import UnlockIcon from '~icons/mingcute/safe-lock-line';
 	import { onMount } from 'svelte';
 	import { type BoxDBObj } from '$lib/classes/Box.js';
+	import LoadingScreen from '../../../lib/components/loadingScreen.svelte';
 
 	export let data;
 	// load the database
-	let { supabase } = data
+	let { supabase } = data;
 	let boxOfUser: BoxDBObj | any;
 	// let loading = true;
-	let isLocked:boolean;
+	let isLocked: boolean;
+	let isLoading: boolean = false;
 
 	// fetches the "box" table of the user and stores it in the 'boxOfUser' variable
 	const fetchUserBoxEntry = async (box_id: string) => {
@@ -44,7 +47,7 @@
 	});
 
 	function delay(ms: number) {
- 		return new Promise(resolve => setTimeout(resolve, ms));
+		return new Promise((resolve) => setTimeout(resolve, ms));
 	}
 
 	// updates the 'locked' field of a box database object
@@ -57,8 +60,7 @@
 			}
 		});
 		const response = await updateResponse.json();
-		console.log("update response: ", response);
-
+		console.log('update response: ', response);
 
 		if (response.success) {
 			// Update the local state to reflect the change
@@ -66,36 +68,48 @@
 			return {
 				success: response.success,
 				msg: 'The box of user value is now updated to'
-			}
+			};
 		} else {
 			return {
 				success: response.success,
 				msg: 'Updating of lock failed!'
-			}
+			};
 		}
-		
 	};
 
 	const toggleIsLocked = async () => {
+		isLoading = true;
 		let newBox: BoxDBObj = {
 			box_id: boxOfUser.box_id,
 			user_id: boxOfUser.user_id,
 			locked: false
-		}
+		};
 		const updateResponse = await updateLockedField(newBox);
+
 		if (updateResponse.success) {
 			await fetchUserBoxEntry('1000000000000000');
 			console.log(updateResponse.msg, 'lock was toggled to', isLocked);
-			console.log("Box closing in 5 seconds");
+			console.log('Box closing in 5 seconds');
+			isLoading = false;
+
+			// the box will close in five seconds
+
+			// wait five seconds
 			await delay(5000);
 
+			// locking, loading
+			isLoading = true;
 			newBox = {
 				box_id: boxOfUser.box_id,
 				user_id: boxOfUser.user_id,
 				locked: true
-			}
+			};
+
 			await updateLockedField(newBox);
 			await fetchUserBoxEntry('1000000000000000');
+
+			//locked na sya
+			isLoading = false;
 		} else {
 			await fetchUserBoxEntry('1000000000000000');
 			console.log(updateResponse.msg, 'lock is still', isLocked);
@@ -103,22 +117,36 @@
 	};
 </script>
 
+{#if isLoading}
+	<LoadingScreen {isLocked} />
+{/if}
+
 <div class="buttonContainer">
 	{#if isLocked}
 		<!-- <img alt="Smiley face" src={smiley} /> -->
 		<h1 class="m-2">Status: LOCKED</h1>
 		<!-- <LockIcon class="icon" /> -->
-		<img class="m-2" src='https://img.icons8.com/?size=100&id=94&format=png&color=000000' alt="lock icon" />
+		<img
+			class="m-2"
+			src="https://img.icons8.com/?size=100&id=94&format=png&color=000000"
+			alt="lock icon"
+		/>
 	{:else}
 		<h1 class="m-2">Status: UNLOCKED</h1>
 		<!-- <img alt="Concerned face" src={concerned} /> -->
 		<!-- <UnlockIcon class="icon" /> -->
-		<img class="m-2" src='https://img.icons8.com/?size=100&id=152&format=png&color=000000' alt="unlock icon" />
-
+		<img
+			class="m-2"
+			src="https://img.icons8.com/?size=100&id=152&format=png&color=000000"
+			alt="unlock icon"
+		/>
 	{/if}
 	<button class="toggleButton btn variant-filled-primary" on:click={toggleIsLocked}>
 		Toggle Lock
 	</button>
+	<!-- {#if !isLocked} -->
+	<div id="countdown"></div>
+	<!-- {/if} -->
 </div>
 
 <style>
