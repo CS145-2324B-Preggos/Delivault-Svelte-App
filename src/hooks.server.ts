@@ -133,7 +133,6 @@ const authGuard: Handle = async ({ event, resolve }) => {
 }
 
 const mqttClient: Handle = async({event, resolve}) => {
-  if(!event.locals.session || !event.locals.user) return resolve(event)
 
   event.locals.mqttClient = client
   client.publish("sys/log", `Visited ${event.url}`, { qos: 2 }, (err) => {

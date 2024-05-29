@@ -153,7 +153,7 @@
 				</nav>
 			</svelte:fragment>
             <svelte:fragment slot="trail">
-                <AppHeaderAuthComponent supabase={supabase}/>
+                <AppHeaderAuthComponent supabase={supabase} />
             </svelte:fragment>
         </AppBar>
     </svelte:fragment>
