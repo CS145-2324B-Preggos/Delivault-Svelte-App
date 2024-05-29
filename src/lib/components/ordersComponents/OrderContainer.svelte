@@ -40,13 +40,13 @@
 >
 	<div class="flex flex-col w-full">
 		<div class="flex flex-row justify-start">
-			<div class="flex flex-col mr-5">
+			<div class="flex flex-col mr-2 lg:mr-5">
 				<p class="py-2 font-bold">Order Name</p>
 				<p class="py-2 font-bold">Password</p>
 				<p class="py-2 font-bold">Courier Contact</p>
 			</div>
 
-			<div class="flex flex-col flex-grow mr-2">
+			<div class="flex flex-col lg:flex-grow mr-2">
 				{#if isEditing}
 					<p class="py-1">
 						<input
@@ -77,7 +77,7 @@
 
 		<div class="pb-2 flex flex-row justify-center">
 			{#if deliveredToggle}
-                <button type="button" class="btn variant-filled-primary w-1/3 deliverBut mt-2"
+                <button type="button" class="btn variant-filled-primary  w-1/2 lg:w-1/3 deliverBut mt-2"
                     on:click={() => {
                         toggleButton();
                         order.status = deliveredToggle;
@@ -86,7 +86,7 @@
                 > Delivered
                 </button>
             {:else}
-                <button type="button" class="btn variant-filled-primary w-1/3 mt-2"
+                <button type="button" class="btn variant-filled-primary w-1/2 lg:w-1/3 mt-2"
                     on:click={() => {
                         toggleButton();
                         order.status = deliveredToggle;
@@ -112,12 +112,18 @@
                 disabled
             > Edit
             </button>
-            <div class="flex flex-row place-items-end mt-2">
-                <button type="button" class="btn variant-filled-primary w-1/2 mr-2" on:click={cancelEdit}>
-                    Cancel
+            <div class="flex lg:flex-row place-items-end mt-2">
+                <button 
+                    type="button" 
+                    class="btn variant-filled-primary w-1/2 text-xs lg:text-base mr-1 lg:mr-2" 
+                    on:click={cancelEdit}
+                >Cancel
                 </button>
-                <button type="button" class="btn variant-filled-primary w-1/2" on:click={confirmEdit}>
-                    Confirm
+                <button 
+                    type="button" 
+                    class="btn variant-filled-primary w-1/2 text-xs lg:text-base" 
+                    on:click={confirmEdit}
+                >Confirm
                 </button>
             </div>
         {:else}
