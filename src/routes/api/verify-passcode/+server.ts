@@ -41,6 +41,8 @@ export async function POST({ request, locals: { supabase } }) {
         pushSubscription = subscriptionData[0]
     }
 
+    console.log(pushSubscription)
+
     if (data.length == 0 || data[0].status) {
         if(pushSubscription) sendNotification(pushSubscription, "Delivault Unlock Attempt Failed!", "Someone attempted to open your box")
         error(401, 'pass invalid');
