@@ -1,13 +1,8 @@
 <script lang="ts">
-	// import smiley from './images/smileyface.jpg';
-	// import concerned from './images/gif.gif';
-	// import lockIcon from '~icons/mingcute/safe-lock-fill';
-	import lockIcon from '../../../../static/assets/icons/lock_svg.svg';
-	import LockIcon from '~icons/mingcute/safe-lock-fill';
-	``;
-	import UnlockIcon from '~icons/mingcute/safe-lock-line';
 	import { onMount } from 'svelte';
 	import { type BoxDBObj } from '$lib/classes/Box.js';
+	import { getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
+
 	import LoadingScreen from '../../../lib/components/loadingScreen.svelte';
 
 	export let data;
@@ -19,6 +14,14 @@
 	let isLoading: boolean = false;
 	let timerVisible: boolean = false;
 	let countdown: number = 5;
+
+	const toastStore = getToastStore();
+
+	
+	const t: ToastSettings = {
+		message: `The box will open in ${countdown} seconds.`,
+		timeout: 1000,
+	};
 
 	// fetches the "box" table of the user and stores it in the 'boxOfUser' variable
 	const fetchUserBoxEntry = async (box_id: string) => {
@@ -86,6 +89,7 @@
 			user_id: boxOfUser.user_id,
 			locked: false
 		};
+
 		const updateResponse = await updateLockedField(newBox);
 
 		if (updateResponse.success) {
@@ -95,11 +99,13 @@
 			countdown = 5;
 			isLoading = false;
 			timerVisible = true;
-
 			// the box will close in five seconds
 
 			// wait five seconds
 			let interval = setInterval(() => {
+				t.message = `The box will open in ${countdown} seconds.`
+				toastStore.trigger(t);
+
 				countdown--;
 				if (countdown <= 0) {
 					clearInterval(interval);
@@ -119,19 +125,6 @@
 				}
 			}, 1000);
 
-			// locking, loading
-			// isLoading = true;
-			// newBox = {
-			// 	box_id: boxOfUser.box_id,
-			// 	user_id: boxOfUser.user_id,
-			// 	locked: true
-			// };
-
-			// await updateLockedField(newBox);
-			// await fetchUserBoxEntry('1000000000000000');
-
-			// //locked na sya
-			// isLoading = false;
 		} else {
 			await fetchUserBoxEntry('1000000000000000');
 			console.log(updateResponse.msg, 'lock is still', isLocked);
@@ -166,9 +159,6 @@
 			alt="unlock icon"
 		/>
 		<button class="toggleButton btn variant-filled-primary" disabled> Toggle Lock </button>
-	{/if}
-	{#if timerVisible}
-		<h1>Box will close in {countdown} seconds</h1>
 	{/if}
 </div>
 
