@@ -93,8 +93,9 @@
 </AddOrderScreen>
 
 <AppShell
-	regionPage="flex-col align-content-center justify-items-center pt-3"
-	slotHeader="flex flex-row justify-between pt-5 mx-2 "
+	regionPage="flex-col pt-3"
+	slotHeader="flex flex-row justify-between pt-5 mx-2"
+	slotFooter="flex flex-row justify-center"
 >
 	<svelte:fragment slot="header">
 			<div class='place-self-center'><strong class="text-xl uppercase pt-5">My orders</strong></div>
@@ -119,9 +120,9 @@
 			</div>
 		{/each}
 	<!-- </div> -->
-	<div class='flex flex-row justify-center'>
+	<svelte:fragment slot="footer">
 		<button type="button" class="btn variant-filled-primary content-center my-5" on:click={toggleAddOrderScreen}>
 			Add orders
 		</button>
-	</div>
+	</svelte:fragment>
 </AppShell>

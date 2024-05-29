@@ -77,7 +77,7 @@
 
 		<div class="pb-2 flex flex-row justify-center">
 			{#if deliveredToggle}
-                <button type="button" class="btn variant-filled-primary  w-1/2 lg:w-1/3 deliverBut mt-2"
+                <button type="button" class="btn variant-filled-primary  w-2/3 lg:w-1/3 deliverBut mt-2"
                     on:click={() => {
                         toggleButton();
                         order.status = deliveredToggle;
@@ -86,7 +86,7 @@
                 > Delivered
                 </button>
             {:else}
-                <button type="button" class="btn variant-filled-primary w-1/2 lg:w-1/3 mt-2"
+                <button type="button" class="btn variant-filled-primary w-2/3 lg:w-1/3 mt-2"
                     on:click={() => {
                         toggleButton();
                         order.status = deliveredToggle;
