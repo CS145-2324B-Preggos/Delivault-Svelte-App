@@ -94,11 +94,16 @@
 
 <AppShell
 	regionPage="flex-col pt-3"
-	slotHeader="pt-5 ml-2"
-	slotPageFooter="place-self-center py-5"
+	slotHeader="flex flex-row justify-between pt-5 mx-2"
+	slotFooter="flex flex-row justify-center"
 >
 	<svelte:fragment slot="header">
-		<strong class="text-xl uppercase pt-5">My orders</strong>
+			<div class='place-self-center'><strong class="text-xl uppercase pt-5">My orders</strong></div>
+			<div>	
+				<button type="button" class="btn variant-filled-primary content-center" on:click={toggleAddOrderScreen}>
+					Add orders
+				</button>
+			</div>
 	</svelte:fragment>
 
 	<!-- <div class="border-solid border-8 w-max"> -->
@@ -115,9 +120,8 @@
 			</div>
 		{/each}
 	<!-- </div> -->
-
-	<svelte:fragment slot="pageFooter">
-		<button type="button" class="btn variant-filled-primary" on:click={toggleAddOrderScreen}>
+	<svelte:fragment slot="footer">
+		<button type="button" class="btn variant-filled-primary content-center my-5" on:click={toggleAddOrderScreen}>
 			Add orders
 		</button>
 	</svelte:fragment>
