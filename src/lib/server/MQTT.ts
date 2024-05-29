@@ -1,7 +1,7 @@
 // TODO: Add a helper to send a message to unlock the box
 
 import { error } from "@sveltejs/kit";
-import type { MqttClient } from "mqtt";
+import type { MqttClient, IClientOptions, IClientPublishOptions } from "mqtt";
 import { EventEmitter } from "node:events";
 
 export enum HardwareState {
@@ -53,7 +53,16 @@ async function prepareForAck(mqtt: MqttClient, expected_topic: string, expected_
 
 // helper for when any control message needs to be sent to a box
 export async function sendControlMessage(mqtt: MqttClient, box_id: string, message: 'lock' | 'unlock' | 'pass valid' | 'pass invalid'): Promise<MQTTResponse> {
-    mqtt.publish(`ident/${box_id}/in`, message);
+    const topic = `ident/${box_id}/in`;
+    const options: IClientPublishOptions = { qos: 2 }; // Define QoS level
+
+    mqtt.publish(topic, message, options, (err) => {
+        if (err) {
+            console.error('Publish error: ', err);
+            // Handle the error appropriately
+        }
+    });
+
     let mqttResponse = {
         success: true, 
         new_state: HardwareState.locked, 
@@ -70,8 +79,23 @@ export async function sendControlMessage(mqtt: MqttClient, box_id: string, messa
 
 // helper for sending the designated masterkey to a box
 export async function sendMasterkey(mqtt: MqttClient, box_id: string, key: string): Promise<MQTTResponse> {
-    mqtt.publish(`ident/${box_id}/in`, `masterkey ${key}`);
-    let mqttResponse = {success: true, new_state: HardwareState.unlocked, error: "OK"};
+    const topic = `ident/${box_id}/in`; 
+    const message = `masterkey ${key}`;
+    const options: IClientPublishOptions = { qos: 2 }; // Define QoS level
+
+
+    mqtt.publish(topic, message, options, (err) => {
+        if (err) {
+            console.error('Publish error: ', err);
+        }
+    });
+
+    let mqttResponse = {
+        success: true, 
+        new_state: HardwareState.unlocked, 
+        error: "OK"
+    };
+
     await prepareForAck(mqtt, `ident/${box_id}/out`, 'ack masterkey').catch(
         ( reason ) => mqttResponse = {success: false, new_state: HardwareState.locked, error: `${reason}: No acknowledgement received`}
     );

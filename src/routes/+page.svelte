@@ -1,15 +1,15 @@
-<script lang='ts'>
-	import { AppShell } from "@skeletonlabs/skeleton";
+<script lang="ts">
+	import { AppShell } from '@skeletonlabs/skeleton';
 
 	export let loggedInUID: null | string = "null";
-	export let boxExist = false;
+	// export let boxExist = false;
 	export let boxOnline = false;
     export let boxID:string, registeredBox;
 
 	let masterkeyToggle = false;
 	let originalMasterkey:string;
 	let newMasterkey:string;
-  
+
 	const editMasterkey = async () => {
 		masterkeyToggle = false;
 
@@ -29,7 +29,6 @@
 		if (publishResponse.success) {
 			originalMasterkey = newMasterkey;
 		}
-
     };
 
 	const toggleKeyEdit = () => {
