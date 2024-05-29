@@ -38,7 +38,7 @@ export async function POST({ request, locals: { supabase } }) {
     let pushSubscription : PushSubscriptionJSON | null = null;
 
     if (subscriptionData.length > 0) {
-        pushSubscription = subscriptionData[0]
+        pushSubscription = subscriptionData[0].subscription
     }
 
     console.log(pushSubscription)
