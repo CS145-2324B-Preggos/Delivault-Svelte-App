@@ -9,10 +9,27 @@
 	let masterkeyToggle = false;
 	let originalMasterkey:string;
 	let newMasterkey:string;
-
-	const editMasterkey = () => {
+  
+	const editMasterkey = async () => {
 		masterkeyToggle = false;
-		originalMasterkey = newMasterkey;
+
+		const boxPasscode = {
+			box_id: "1000000000000000", // hardcoded for now
+			masterkey: newMasterkey
+		}
+		const publishMasterKey = await fetch(`../../api/masterkey`, {
+			method: 'PATCH',
+			body: JSON.stringify([boxPasscode]),
+			headers: {
+				'content-type': 'application/json'
+			}
+		});
+
+		const publishResponse = await publishMasterKey.json();
+		if (publishResponse.success) {
+			originalMasterkey = newMasterkey;
+		}
+
     };
 
 	const toggleKeyEdit = () => {
@@ -107,7 +124,6 @@
 </AppShell>
 
 <style>
-	
 	.input {
 		font-size: 14px;
 		line-height: 20px;
