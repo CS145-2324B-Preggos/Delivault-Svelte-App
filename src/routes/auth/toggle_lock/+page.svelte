@@ -17,6 +17,8 @@
 	// let loading = true;
 	let isLocked: boolean;
 	let isLoading: boolean = false;
+	let timerVisible: boolean = false;
+	let countdown: number = 5;
 
 	// fetches the "box" table of the user and stores it in the 'boxOfUser' variable
 	const fetchUserBoxEntry = async (box_id: string) => {
@@ -90,26 +92,46 @@
 			await fetchUserBoxEntry('1000000000000000');
 			console.log(updateResponse.msg, 'lock was toggled to', isLocked);
 			console.log('Box closing in 5 seconds');
+			countdown = 5;
 			isLoading = false;
+			timerVisible = true;
 
 			// the box will close in five seconds
 
 			// wait five seconds
-			await delay(5000);
+			let interval = setInterval(() => {
+				countdown--;
+				if (countdown <= 0) {
+					clearInterval(interval);
+					// Lock the box after countdown ends
+					isLoading = true;
+					newBox = {
+						box_id: boxOfUser.box_id,
+						user_id: boxOfUser.user_id,
+						locked: true
+					};
+					updateLockedField(newBox).then(async () => {
+						await fetchUserBoxEntry('1000000000000000');
+						isLoading = false;
+					});
+					// Hide the timer
+					timerVisible = false;
+				}
+			}, 1000);
 
 			// locking, loading
-			isLoading = true;
-			newBox = {
-				box_id: boxOfUser.box_id,
-				user_id: boxOfUser.user_id,
-				locked: true
-			};
+			// isLoading = true;
+			// newBox = {
+			// 	box_id: boxOfUser.box_id,
+			// 	user_id: boxOfUser.user_id,
+			// 	locked: true
+			// };
 
-			await updateLockedField(newBox);
-			await fetchUserBoxEntry('1000000000000000');
+			// await updateLockedField(newBox);
+			// await fetchUserBoxEntry('1000000000000000');
 
-			//locked na sya
-			isLoading = false;
+			// //locked na sya
+			// isLoading = false;
 		} else {
 			await fetchUserBoxEntry('1000000000000000');
 			console.log(updateResponse.msg, 'lock is still', isLocked);
@@ -131,6 +153,9 @@
 			src="https://img.icons8.com/?size=100&id=94&format=png&color=000000"
 			alt="lock icon"
 		/>
+		<button class="toggleButton btn variant-filled-primary" on:click={toggleIsLocked}>
+			Toggle Lock
+		</button>
 	{:else}
 		<h1 class="m-2">Status: UNLOCKED</h1>
 		<!-- <img alt="Concerned face" src={concerned} /> -->
@@ -140,13 +165,11 @@
 			src="https://img.icons8.com/?size=100&id=152&format=png&color=000000"
 			alt="unlock icon"
 		/>
+		<button class="toggleButton btn variant-filled-primary" disabled> Toggle Lock </button>
 	{/if}
-	<button class="toggleButton btn variant-filled-primary" on:click={toggleIsLocked}>
-		Toggle Lock
-	</button>
-	<!-- {#if !isLocked} -->
-	<div id="countdown"></div>
-	<!-- {/if} -->
+	{#if timerVisible}
+		<h1>Box will close in {countdown} seconds</h1>
+	{/if}
 </div>
 
 <style>
