@@ -82,7 +82,7 @@
 		/>
 		<label for="passcode" class="mt-2 text-white">Passcode</label>
 		<div class="passcodeSegment">
-			<button on:click|preventDefault={generateCode}>
+			<button on:click|preventDefault={generateCode} class="bg-primary-500 rounded-full text-white p-3">
 				Generate Code
 			</button>
 			<input
@@ -108,7 +108,7 @@
 			  </div>
 			{:else}
 				<div class="submitButton">
-					<input type="submit" value="Submit" disabled={isDisabled}/>
+					<input type="submit" value="Submit" disabled={isDisabled} class="bg-primary-500 rounded-full text-white p-3"/>
 				</div>
 			{/if}
 		  </div>
