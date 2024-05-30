@@ -138,7 +138,7 @@
         <!-- App Bar -->
         <AppBar 
 			gridColumns="grid-cols-3" 
-			background='bg-primary-500' 
+			background='bg-secondary-500' 
 			slotTrail="place-content-end"
 			slotLead="place-content-start"
 		>
@@ -148,7 +148,9 @@
 				</button>
 				<nav>
 					<ul>
-						<a href="/"><strong class="text-xl uppercase">Delivault</strong></a>
+						<a href="/"><strong class="text-xl uppercase">
+							<span class="text-primary-500">Deli</span>vault
+						</strong></a>
 					</ul>	
 				</nav>
 			</svelte:fragment>
