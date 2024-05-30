@@ -5,7 +5,7 @@
 </script>
 
 <div
-	class="flex flex-col justify-center items-center w-full h-full bg-gray-900 fixed bg-opacity-50"
+	class="flex flex-col justify-center items-center w-full h-full bg-gray-900 fixed bg-opacity-50 z-10"
 >
 	<Spinner />
   <h1 class="text-white">

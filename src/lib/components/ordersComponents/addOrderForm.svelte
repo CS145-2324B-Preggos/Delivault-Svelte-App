@@ -31,7 +31,7 @@
 	};
 
 	let generateCode = () => {
-		passcode = "";
+		passcode = '';
 		const codeLength = 8;
 		const characters = '0123456789ABCD';
 
@@ -53,28 +53,34 @@
 	};
 </script>
 
-<div class="orderFieldsContainer">
-	<h4>Add Order</h4>
+<div class="display: flex flex-col p-6 bg-secondary-500 rounded-xl">
+	<h4 class="self-center font-bold text-xl text-primary-500">Add Order</h4>
 	<form on:submit|preventDefault={handleSubmit} class="form">
-		<label for="orderName">Order Name</label>
+		<label for="orderName" class="mt-2 text-white">Order Name</label>
 		<input
 			type="text"
 			id="orderName"
 			placeholder="Enter Order Name"
 			bind:value={orderName}
 			on:input={hideErrorMessage}
+			class="rounded-3xl text-secondary-500"
 		/>
-		<label for="courierContactDetails">Courier Contact Details</label>
+		<label for="courierContactDetails" class="mt-2 text-white">Courier Contact Details</label>
 		<input
 			type="text"
 			id="courierContactDetails"
 			placeholder="09XX XXX XXXX"
 			on:input={hideErrorMessage}
 			bind:value={courierContactDetails}
+			class="rounded-3xl text-secondary-500"
 		/>
-		<label for="passcode">Passcode</label>
+		<label for="passcode" class="mt-2 text-white">Passcode</label>
 		<div class="passcodeSegment">
-			<button on:click|preventDefault={generateCode} disabled={isDisabled}>
+			<button
+				on:click|preventDefault={generateCode}
+				disabled={isDisabled}
+				class=" bg-primary-500 text-white p-3 rounded-full"
+			>
 				Generate Code
 			</button>
 			<input
@@ -83,16 +89,25 @@
 				bind:value={passcode}
 				on:change={hideErrorMessage}
 				readonly
+				class="rounded-3xl ml-2 text-secondary-500"
 			/>
 		</div>
-		<div class="submitSegment">
+		<div class="flex mt-5 justify-center items-center gap-10">
 			<div>
-			  <button type="button" on:click={handleCancel}>Cancel</button>
+				<button
+					type="button"
+					on:click={handleCancel}
+					class="bg-secondary-500 text-white p-3 w-20 rounded-full border-white border-solid border-2">Cancel</button
+				>
 			</div>
 			<div class="submitButton">
-				<input type="submit" value="Submit" />
+				<input
+					type="submit"
+					value="Submit"
+					class="bg-primary-500 text-white p-3 w-20 rounded-full"
+				/>
 			</div>
-		  </div>
+		</div>
 	</form>
 	{#if showErrorMessage}
 		<p class="errorMessage">{errorMessage}</p>
@@ -104,7 +119,8 @@
 		display: flex;
 		margin: 10px;
 		justify-content: center;
-		gap: 20px;
+		align-items: center;
+		gap: 10px;
 	}
 
 	.passcodeSegment {
@@ -127,48 +143,5 @@
 	.errorMessage {
 		color: red;
 	}
-
-	/* Style input fields */
-	input[type="text"],
-	input[type="submit"] {
-		color: blue; /* Change font color for input text and submit button */
-	}
-
-	/* Style buttons */
-	button {
-        color: black; /* Change font color for buttons */
-        border: 1px solid black; /* Add border */
-        padding: 8px 16px; /* Add padding for better visual appearance */
-        cursor: pointer; /* Add cursor pointer for better interaction */
-        border-radius: 4px; /* Add border radius for rounded corners */
-        background-color: transparent; /* Make background transparent */
-    }
-
-    /* Style buttons on hover */
-    button:hover {
-        background-color: #f0f0f0; /* Change background color on hover */
-    }
-
-	/* Style h4 elements */
-	h4 {
-    color: black; /* Change font color for h4 */
-	}
-
-	/* Style label elements */
-	label {
-		color: rgb(113, 108, 98); /* Change font color for labels */
-	}
-
-	.submitButton input[type="submit"] {
-        border: 1px solid black; /* Add border */
-        padding: 8px 16px; /* Add padding */
-        border-radius: 4px; /* Add border radius */
-        cursor: pointer; /* Add cursor pointer */
-        background-color: transparent; /* Make background transparent */
-    }
-
-    .submitButton input[type="submit"]:hover {
-        background-color: #f0f0f0; /* Change background color on hover */
-    }
 
 </style>
