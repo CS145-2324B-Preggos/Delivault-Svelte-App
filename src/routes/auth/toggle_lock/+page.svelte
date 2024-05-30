@@ -2,7 +2,6 @@
 	import { onMount } from 'svelte';
 	import { type BoxDBObj } from '$lib/classes/Box.js';
 	import { getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
-
 	import LoadingScreen from '../../../lib/components/loadingScreen.svelte';
 
 	export let data;
@@ -11,6 +10,7 @@
 	let boxOfUser: BoxDBObj | any;
 	// let loading = true;
 	let isLocked: boolean;
+	let isFetching: boolean;
 	let isLoading: boolean = false;
 	let errorLocking: boolean = true;
 	let countdown: number = 5;
@@ -55,7 +55,11 @@
 
 	// as soon as the page starts, fetch the box of the user
 	onMount(async () => {
+		isFetching = true;
+		isLoading = true;
 		await fetchUserBoxEntry('1000000000000000'); // find a way to identify the specific box id of the current user, pero for now eto muna yung sa box natin
+		isLoading = false;
+		isFetching = false;
 	});
 
 	// updates the 'locked' field of a box database object
@@ -149,7 +153,7 @@
 </script>
 
 {#if isLoading}
-	<LoadingScreen {isLocked} />
+	<LoadingScreen {isLocked} {isFetching} />
 {/if}
 
 <div class="buttonContainer">

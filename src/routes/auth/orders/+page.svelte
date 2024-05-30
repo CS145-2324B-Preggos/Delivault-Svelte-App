@@ -7,8 +7,11 @@
 	import { onMount } from 'svelte';
 	import { v4 as uuidv4 } from 'uuid';
 	import { AppShell } from '@skeletonlabs/skeleton';
+	import LoadingScreen from '$lib/components/loadingScreen.svelte';
 
 	export let data;
+	let isLoading: boolean;
+	let isFetching: boolean;
 
 	let { orders, supabase } = data;
 	let showAddOrderScreen = false;
@@ -18,7 +21,11 @@
 	};
 
 	onMount(async () => {
+		isFetching = true;
+		isLoading = true;
 		await getAllOrders();
+		isLoading = false;
+		isFetching = false;
 	});
 
 	const getAllOrders = async () => {
@@ -86,6 +93,10 @@
 	};
 </script>
 
+{#if isLoading}
+	<LoadingScreen {isFetching} />
+{/if}
+
 <AddOrderScreen {showAddOrderScreen} on:click={toggleAddOrderScreen}>
 	<AddOrderForm
 		on:cancelClick={toggleAddOrderScreen}
@@ -99,30 +110,40 @@
 	slotFooter="flex flex-row justify-center"
 >
 	<svelte:fragment slot="header">
-			<div class='place-self-center'><strong class="text-xl uppercase pt-5">My orders</strong></div>
-			<div>	
-				<button type="button" class="btn variant-filled-primary content-center" on:click={toggleAddOrderScreen}>
-					Add orders
-				</button>
-			</div>
+		<div class="place-self-center"><strong class="text-xl uppercase pt-5">My orders</strong></div>
+		<div>
+			<button
+				type="button"
+				class="btn variant-filled-primary content-center"
+				on:click={toggleAddOrderScreen}
+			>
+				Add orders
+			</button>
+		</div>
 	</svelte:fragment>
 
 	<!-- <div class="border-solid border-8 w-max"> -->
-		{#each orders as order (order.order_id)}
-			<div class="mx-2">
-				<OrderContainer {order} {updateOrder} {deleteOrder} />
+	{#each orders as order (order.order_id)}
+		<div class="mx-2">
+			<OrderContainer {order} {updateOrder} {deleteOrder} />
+		</div>
+		<div class="pt-2"></div>
+	{:else}
+		<div class="mx-2">
+			<div
+				class="card variant-ghost-primary w-full h-10 flex flex-row place-content-center p-5 space-y-2"
+			>
+				<section class="place-self-center">No Orders Yet</section>
 			</div>
-			<div class="pt-2"></div>
-		{:else}
-			<div class="mx-2">
-				<div class="card variant-ghost-primary w-full h-10 flex flex-row place-content-center p-5 space-y-2">
-					<section class="place-self-center">No Orders Yet</section>
-				</div>
-			</div>
-		{/each}
+		</div>
+	{/each}
 	<!-- </div> -->
 	<svelte:fragment slot="footer">
-		<button type="button" class="btn variant-filled-primary content-center my-5" on:click={toggleAddOrderScreen}>
+		<button
+			type="button"
+			class="btn variant-filled-primary content-center my-5"
+			on:click={toggleAddOrderScreen}
+		>
 			Add orders
 		</button>
 	</svelte:fragment>
