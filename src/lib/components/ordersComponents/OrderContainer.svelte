@@ -7,7 +7,7 @@
     let originalOrderName = order.order_name;
     let originalPassword = order.password;
     let originalCourier = order.courier_details;
-    let deliveredToggle = false
+    let deliveredToggle = order.status;
 
     const startEditing = () => {
         isEditing = true;
