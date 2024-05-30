@@ -163,7 +163,8 @@
 		<!-- <LockIcon class="icon" /> -->
 		<img
 			class="m-2"
-			src="https://img.icons8.com/?size=100&id=94&format=png&color=000000"
+			width="200px"
+			src="https://www.svgrepo.com/download/532323/lock-alt.svg"
 			alt="lock icon"
 		/>
 		<button class="toggleButton btn variant-filled-primary" on:click={toggleIsLocked}>
@@ -175,7 +176,8 @@
 		<!-- <UnlockIcon class="icon" /> -->
 		<img
 			class="m-2"
-			src="https://img.icons8.com/?size=100&id=152&format=png&color=000000"
+			width="200px"
+			src="https://www.svgrepo.com/download/532341/unlock-alt.svg"
 			alt="unlock icon"
 		/>
 		{#if errorLocking}
