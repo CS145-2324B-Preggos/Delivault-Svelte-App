@@ -79,7 +79,7 @@
 				order_id: newOrderId,
 				box_id: 1000000000000000, // for now
 				order_name: orderDetails.order_name,
-				password: orderDetails.passcode,
+				password: orderDetails.password,
 				courier_details: orderDetails.courier_contact_details,
 				status: false,
 				hash_passcode: null
@@ -87,7 +87,7 @@
 
 			if (error) {
 				toastStore.trigger(t);
-         	   throw error;
+         		throw error;
 			}
 
 			console.log(e.detail);

@@ -31,6 +31,7 @@
 	};
 
 	let generateCode = () => {
+		passcode = "";
 		const codeLength = 8;
 		const characters = '0123456789ABCD';
 
@@ -39,7 +40,7 @@
 			result += characters.charAt(Math.floor(Math.random() * characters.length));
 		}
 		passcode = result;
-		isDisabled = true;
+		isDisabled = false;
 		hideErrorMessage();
 	};
 
@@ -81,7 +82,7 @@
 		/>
 		<label for="passcode">Passcode</label>
 		<div class="passcodeSegment">
-			<button on:click|once|preventDefault={generateCode} disabled={isDisabled}>
+			<button on:click|preventDefault={generateCode} disabled={isDisabled}>
 				Generate Code
 			</button>
 			<input
