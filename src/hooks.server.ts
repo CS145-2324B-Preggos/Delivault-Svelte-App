@@ -55,8 +55,6 @@ client.on(
 
 // Before the server is killed, disconnect the client 
 
-process.on('exit', () => client.end());
-
 const supabase: Handle = async ({ event, resolve }) => {
   /**
    * Creates a Supabase client specific to this server request.
@@ -132,16 +130,4 @@ const authGuard: Handle = async ({ event, resolve }) => {
   return resolve(event)
 }
 
-const mqttClient: Handle = async({event, resolve}) => {
-
-  event.locals.mqttClient = client
-  client.publish("sys/log", `Visited ${event.url}`, { qos: 2 }, (err) => {
-    if (err) {
-      console.error('Publish error:', err.message);
-    }
-  });
-
-  return resolve(event)
-}
-
-export const handle: Handle = sequence(supabase, authGuard, mqttClient)
+export const handle: Handle = sequence(supabase, authGuard)

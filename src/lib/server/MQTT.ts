@@ -15,6 +15,54 @@ export type MQTTResponse = {
     error: string
 }
 
+// this function initializes an MQTT client
+export async function initializeMQTTClient() {
+    const crt = await fetch("https://assets.emqx.com/data/emqxsl-ca.crt").then(async (response) => await response.blob().then( (blob) => blob.text() ))
+
+    const options: IClientOptions = {
+    host: MQTT_BROKER_URL,
+    port: parseInt(MQTT_BROKER_PRT),
+    protocol: 'mqtts',
+    username: MQTT_USERNAME,
+    password: MQTT_PASSWORD,
+    keepalive: 0,
+    ca: crt,
+    }
+
+    // Initialize and connect the mqtt client
+    const client = mqtt.connect(options);
+
+    client.on('connect', () => {
+    console.log("Connected the server to the broker!");
+
+    // Subscribe with QoS level 2
+    client.subscribe('ident/+/out', { qos: 2 }, (err, granted) => {
+        if (err) {
+        console.error('Subscription error:', err.message);
+        } else {
+        console.log('Subscribed to:', granted.map(grant => `${grant.topic} with QoS ${grant.qos}`).join(', '));
+        }
+    });
+
+    // Send initial message
+    client.publish("sys/log", "Hello, world!", { qos: 2 }, (err) => {
+        if (err) {
+        console.error('Publish error:', err.message);
+        }
+    });
+    });
+
+    client.on(
+    'error',
+    (mqtt_err) => error(500, mqtt_err.message)
+    )
+
+    client.on(
+    'message',
+    (topic: string, payload: Buffer) => onReceived(client, topic, payload)
+    )
+}
+
 // TODO: implement this based on the obvious integrated eventEmitter solution + basti's fucking article https://dev.to/somedood/promises-and-events-some-pitfalls-and-workarounds-elp
 // wait until an acknowledgement for the message comes in
 async function waitForAck(target: EventEmitter) {
