@@ -25,6 +25,16 @@
 		background: 'variant-filled-warning',
 	};
 
+	const c: ToastSettings = {
+		message: "Submitting order... Please wait.",
+		timeout: 1000,
+		hoverable: true,
+	};
+
+	const handleWaitToast = () => {
+		toastStore.trigger(c)
+	};
+
 	const toggleAddOrderScreen = () => {
 		showAddOrderScreen = !showAddOrderScreen;
 	};
@@ -116,6 +126,7 @@
 	<AddOrderForm
 		on:cancelClick={toggleAddOrderScreen}
 		on:addOrderFormSubmit={handleAddOrderFormSubmit}
+		on:waitToast={handleWaitToast}
 	/>
 </AddOrderScreen>
 
