@@ -6,12 +6,9 @@
 	import type { Order, OrderDBObj } from '$lib/classes/Order';
 	import { onMount } from 'svelte';
 	import { v4 as uuidv4 } from 'uuid';
-<<<<<<< HEAD:src/routes/auth/orders/+page.svelte
 	import { AppShell } from '@skeletonlabs/skeleton';
 	import LoadingScreen from '$lib/components/loadingScreen.svelte';
-=======
-	import { AppShell, Toast, getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
->>>>>>> main:src/routes/private/orders/+page.svelte
+	import { Toast, getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
 
 	export let data;
 	let isLoading: boolean;
@@ -140,24 +137,6 @@
 		</div>
 	</svelte:fragment>
 
-<<<<<<< HEAD:src/routes/auth/orders/+page.svelte
-	<!-- <div class="border-solid border-8 w-max"> -->
-	{#each orders as order (order.order_id)}
-		<div class="mx-2">
-			<OrderContainer {order} {updateOrder} {deleteOrder} />
-		</div>
-		<div class="pt-2"></div>
-	{:else}
-		<div class="mx-2">
-			<div
-				class="card variant-ghost-primary w-full h-10 flex flex-row place-content-center p-5 space-y-2"
-			>
-				<section class="place-self-center">No Orders Yet</section>
-			</div>
-		</div>
-	{/each}
-	<!-- </div> -->
-=======
 
 		{#each orders as order (order.order_id)}
 			<div class="mx-2">
@@ -172,7 +151,6 @@
 			</div>
 		{/each}
 
->>>>>>> main:src/routes/private/orders/+page.svelte
 	<svelte:fragment slot="footer">
 		<button
 			type="button"
