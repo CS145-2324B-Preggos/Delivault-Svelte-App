@@ -12,15 +12,17 @@
 	// let loading = true;
 	let isLocked: boolean;
 	let isLoading: boolean = false;
-	let timerVisible: boolean = false;
+	let errorLocking: boolean = true;
 	let countdown: number = 5;
 
 	const toastStore = getToastStore();
 
 	
 	const t: ToastSettings = {
-		message: `The box will open in ${countdown} seconds.`,
+		message: `The box will auto-lock in ${countdown} seconds.`,
 		timeout: 1000,
+		hoverable: true,
+		hideDismiss: true,
 	};
 
 	// fetches the "box" table of the user and stores it in the 'boxOfUser' variable
@@ -37,6 +39,11 @@
 
 		if (box.error) {
 			console.log('Error fetching box table: ', box.error);
+
+			t.message = "Error fetching box."
+			t.background = "variant-filled-warning"
+			toastStore.trigger(t);
+
 		} else {
 			boxOfUser = box.box[0];
 			isLocked = boxOfUser.locked; // Assuming boxOfUser is an array with one element
@@ -50,10 +57,6 @@
 	onMount(async () => {
 		await fetchUserBoxEntry('1000000000000000'); // find a way to identify the specific box id of the current user, pero for now eto muna yung sa box natin
 	});
-
-	function delay(ms: number) {
-		return new Promise((resolve) => setTimeout(resolve, ms));
-	}
 
 	// updates the 'locked' field of a box database object
 	const updateLockedField = async (box: BoxDBObj) => {
@@ -70,11 +73,24 @@
 		if (response.success) {
 			// Update the local state to reflect the change
 			isLocked = boxOfUser.locked;
+			errorLocking = false;
+
+			t.message = "Lock toggle successful!";
+			t.background='variant-filled-success';
+			toastStore.trigger(t);
+
 			return {
 				success: response.success,
 				msg: 'The box of user value is now updated to'
 			};
 		} else {
+
+			errorLocking = true ;
+
+			t.message = "Lock toggle failed.";
+			t.background='variant-filled-warning';
+			toastStore.trigger(t);
+
 			return {
 				success: response.success,
 				msg: 'Updating of lock failed!'
@@ -96,14 +112,15 @@
 			await fetchUserBoxEntry('1000000000000000');
 			console.log(updateResponse.msg, 'lock was toggled to', isLocked);
 			console.log('Box closing in 5 seconds');
+
 			countdown = 5;
 			isLoading = false;
-			timerVisible = true;
 			// the box will close in five seconds
 
 			// wait five seconds
 			let interval = setInterval(() => {
-				t.message = `The box will open in ${countdown} seconds.`
+				t.message = `The box will auto-lock in ${countdown} seconds.`
+				t.background='variant-filled-secondary'
 				toastStore.trigger(t);
 
 				countdown--;
@@ -120,8 +137,6 @@
 						await fetchUserBoxEntry('1000000000000000');
 						isLoading = false;
 					});
-					// Hide the timer
-					timerVisible = false;
 				}
 			}, 1000);
 
@@ -158,7 +173,12 @@
 			src="https://img.icons8.com/?size=100&id=152&format=png&color=000000"
 			alt="unlock icon"
 		/>
-		<button class="toggleButton btn variant-filled-primary" disabled> Toggle Lock </button>
+		{#if errorLocking}
+			<button class="toggleButton btn variant-filled-primary" on:click={toggleIsLocked}> Toggle Lock </button>
+		{:else}
+			<button class="toggleButton btn variant-filled-primary" disabled> Toggle Lock </button>
+		{/if}
+		
 	{/if}
 </div>
 
