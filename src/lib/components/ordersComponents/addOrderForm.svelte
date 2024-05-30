@@ -63,14 +63,6 @@
 			bind:value={orderName}
 			on:input={hideErrorMessage}
 		/>
-		<!-- <label for="expectedDeliveryDate">Expected Delivery Date</label>
-		<input
-			type="date"
-			id="expectedDeliveryDate"
-			placeholder="Expected Delivery Date"
-			on:input={hideErrorMessage}
-			bind:value={expectedDeliveryDate}
-		/> -->
 		<label for="courierContactDetails">Courier Contact Details</label>
 		<input
 			type="text"
