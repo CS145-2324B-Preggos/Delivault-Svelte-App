@@ -6,12 +6,20 @@
 	import type { Order, OrderDBObj } from '$lib/classes/Order';
 	import { onMount } from 'svelte';
 	import { v4 as uuidv4 } from 'uuid';
-	import { AppShell } from '@skeletonlabs/skeleton';
+	import { AppShell, Toast, getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
 
 	export let data;
 
 	let { orders, supabase } = data;
 	let showAddOrderScreen = false;
+
+	const toastStore = getToastStore();
+	const t: ToastSettings = {
+		message: 'Please press (Generate Code) button again.',
+		timeout: 20000,
+		hoverable: true,
+		background: 'variant-filled-warning',
+	};
 
 	const toggleAddOrderScreen = () => {
 		showAddOrderScreen = !showAddOrderScreen;
@@ -71,11 +79,17 @@
 				order_id: newOrderId,
 				box_id: 1000000000000000, // for now
 				order_name: orderDetails.order_name,
-				password: orderDetails.password,
+				password: orderDetails.passcode,
 				courier_details: orderDetails.courier_contact_details,
 				status: false,
 				hash_passcode: null
 			});
+
+			if (error) {
+				toastStore.trigger(t);
+         	   throw error;
+			}
+
 			console.log(e.detail);
 			console.log('order id: ', newOrderId);
 			showAddOrderScreen = false;
