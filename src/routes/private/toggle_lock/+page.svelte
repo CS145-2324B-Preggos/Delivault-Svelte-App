@@ -3,6 +3,9 @@
 	import { type BoxDBObj } from '$lib/classes/Box.js';
 	import { getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
 	import LoadingScreen from '../../../lib/components/loadingScreen.svelte';
+	import { redirect } from '@sveltejs/kit';
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 
 	export let data;
 	// load the database
@@ -150,6 +153,10 @@
 			console.log(updateResponse.msg, 'lock is still', isLocked);
 		}
 	};
+
+	if (!data.session) {
+		goto('/auth')
+	}
 </script>
 
 {#if isLoading}
@@ -163,7 +170,8 @@
 		<!-- <LockIcon class="icon" /> -->
 		<img
 			class="m-2"
-			src="https://img.icons8.com/?size=100&id=94&format=png&color=000000"
+			width="200px"
+			src="https://www.svgrepo.com/download/532323/lock-alt.svg"
 			alt="lock icon"
 		/>
 		<button class="toggleButton btn variant-filled-primary" on:click={toggleIsLocked}>
@@ -175,7 +183,8 @@
 		<!-- <UnlockIcon class="icon" /> -->
 		<img
 			class="m-2"
-			src="https://img.icons8.com/?size=100&id=152&format=png&color=000000"
+			width="200px"
+			src="https://www.svgrepo.com/download/532341/unlock-alt.svg"
 			alt="unlock icon"
 		/>
 		{#if errorLocking}
