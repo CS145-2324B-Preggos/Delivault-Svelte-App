@@ -78,3 +78,29 @@ self.addEventListener('fetch', (event) => {
 
 	event.respondWith(respond());
 });
+
+self.addEventListener(
+	'push', async (event) => {
+		if (!(self.Notification && self.Notification.permission === "granted")) return
+		console.log(`Received event with data.text ${event.data?.text()}`)
+
+		const data = event.data?.json() ?? {}
+
+		const notificationTitle = data.title ?? "DeliVault Notification"
+		const notificationBody = data.options.body ?? "With love, from DeliVault!"
+
+		const thisWorker = await self.registration
+
+		event.waitUntil(
+			thisWorker.showNotification(
+				notificationTitle,
+				{
+					lang: 'en',
+					body: notificationBody,
+					vibrate: [500, 500, 500]
+				}
+			).then(console.log("Notification sent!")
+			)
+		)
+	}
+)

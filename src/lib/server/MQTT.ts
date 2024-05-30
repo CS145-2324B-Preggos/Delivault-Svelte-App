@@ -1,9 +1,10 @@
 // TODO: Add a helper to send a message to unlock the box
 
 import { error } from "@sveltejs/kit";
-import type { MqttClient } from "mqtt";
+import type { MqttClient, IClientOptions, IClientPublishOptions } from "mqtt";
+import mqtt from "mqtt";
 import { EventEmitter } from "node:events";
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from "$env/static/public";
+import { MQTT_BROKER_URL, MQTT_BROKER_PRT, MQTT_USERNAME, MQTT_PASSWORD } from '$env/static/private'
 
 export enum HardwareState {
     locked,
@@ -14,6 +15,51 @@ export type MQTTResponse = {
     success: boolean,
     new_state: HardwareState,
     error: string
+}
+
+// this function initializes an MQTT client
+export async function initializeMQTTClient() {
+    const crt = await fetch("https://assets.emqx.com/data/emqxsl-ca.crt").then(async (response) => await response.blob().then( (blob) => blob.text() ))
+
+    const options: IClientOptions = {
+    host: MQTT_BROKER_URL,
+    port: parseInt(MQTT_BROKER_PRT),
+    protocol: 'mqtts',
+    username: MQTT_USERNAME,
+    password: MQTT_PASSWORD,
+    keepalive: 0,
+    ca: crt,
+    }
+
+    // Initialize and connect the mqtt client
+    const client = mqtt.connect(options);
+
+    client.on('connect', () => {
+    console.log("Connected the server to the broker!");
+
+    // Subscribe with QoS level 2
+    client.subscribe('ident/+/out', { qos: 2 }, (err, granted) => {
+        if (err) {
+            console.error('Subscription error:', err.message);
+        } else {
+            console.log('Subscribed to:', granted?.map(grant => `${grant.topic} with QoS ${grant.qos}`).join(', '));
+        }
+    });
+
+    // Send initial message
+    client.publish("sys/log", "Hello, world!", { qos: 2 }, (err) => {
+            if (err) {
+            console.error('Publish error:', err.message);
+            }
+        });
+    });
+
+    client.on(
+        'error',
+        (mqtt_err) => error(500, mqtt_err.message)
+    )
+
+    return client
 }
 
 // TODO: implement this based on the obvious integrated eventEmitter solution + basti's fucking article https://dev.to/somedood/promises-and-events-some-pitfalls-and-workarounds-elp
@@ -30,7 +76,7 @@ async function waitForAck(target: EventEmitter) {
         // if no ack heard, reject
         setTimeout(
             () => { reject("ACKTIMEOUT"); console.log("ACKTIMEOUT"); },
-            5000
+            8000
         )
     })
 }
@@ -53,64 +99,60 @@ async function prepareForAck(mqtt: MqttClient, expected_topic: string, expected_
 }
 
 // helper for when any control message needs to be sent to a box
-export async function sendControlMessage(mqtt: MqttClient, box_id: string, message: 'lock' | 'unlock' | 'valid' | 'invalid'): Promise<MQTTResponse> {
-    mqtt.publish(`ident/${box_id}/in`, message);
-    let mqttResponse = {success: true, new_state: HardwareState.locked, error: "OK"};
+export async function sendControlMessage(mqtt: MqttClient, box_id: string, message: 'lock' | 'unlock' | 'pass valid' | 'pass invalid'): Promise<MQTTResponse> {
+    const topic = `ident/${box_id}/in`;
+    const options: IClientPublishOptions = { qos: 2 }; // Define QoS level
+
+    mqtt.publish(topic, message, options, (err) => {
+        if (err) {
+            console.error('Publish error: ', err);
+            // Handle the error appropriately
+        }
+    });
+
+    let mqttResponse = {
+        success: true, 
+        new_state: HardwareState.locked, 
+        error: "OK"
+    };
     await prepareForAck(mqtt, `ident/${box_id}/out`, `ack ${message}`).catch(
-        ( reason ) => mqttResponse = {success: false, new_state: HardwareState.unlocked, error: `${reason}: No acknowledgement received`}
+        ( reason ) => mqttResponse = {
+            success: false, 
+            new_state: HardwareState.unlocked, 
+            error: `${reason}: No acknowledgement received`}
     );
     return mqttResponse;
 }
 
 // helper for sending the designated masterkey to a box
 export async function sendMasterkey(mqtt: MqttClient, box_id: string, key: string): Promise<MQTTResponse> {
-    mqtt.publish(`ident/${box_id}/in`, `masterkey ${key}`);
-    let mqttResponse = {success: true, new_state: HardwareState.unlocked, error: "OK"};
+    const topic = `ident/${box_id}/in`; 
+    const message = `masterkey ${key}`;
+    const options: IClientPublishOptions = { qos: 2 }; // Define QoS level
+
+
+    mqtt.publish(topic, message, options, (err) => {
+        if (err) {
+            console.error('Publish error: ', err);
+        }
+    });
+
+    let mqttResponse = {
+        success: true, 
+        new_state: HardwareState.unlocked, 
+        error: "OK"
+    };
+
     await prepareForAck(mqtt, `ident/${box_id}/out`, 'ack masterkey').catch(
         ( reason ) => mqttResponse = {success: false, new_state: HardwareState.locked, error: `${reason}: No acknowledgement received`}
     );
     return mqttResponse;
 }
 
-function verifyPasscode(passcode: string | null): boolean {
-    return passcode !== null && passcode.length == 6;
-}
-
-// helper for when a pass <code> message is received
-function receivedPasscode(mqtt: MqttClient, message: string, box_id: string) {
-
-    const passcode = (/^pass (\d*)$/.exec(message) ?? [null, null])[1];
-
-    // verify the passcode, otherwise true for now
-    const isPasscodeCorrect = verifyPasscode(passcode);
-
-    return sendControlMessage(mqtt, box_id, isPasscodeCorrect ? "valid" : "invalid");
-}
-
-// helper for destructuring an /out topic from which we might receive a message and getting the identifier
-function topicDestructor(topic: string): string {
-    const identifier = (/\/(\d)*\//.exec(topic) ?? ['a', 'b'])[1];
-    if(identifier.length != 16) throw error(500, "Topic not properly destructured into box_id");
-    return identifier;
-}
-
-// callback for when a message is received from any hardware
-export function onReceived(mqtt: MqttClient, topic: string, message: Buffer) {
-    const messageString = message.toString();
-    console.log(`Received from ${topic}: ${messageString}`);
-    
-    // if pass <code>
-    if(messageString.includes('pass')) {
-        receivedPasscode(mqtt, messageString, topicDestructor(topic));
-    }
-
-    // if others ...
-}
-
-
 export async function toggleLockMQTT(mqtt: MqttClient, box_id: string, box_status: boolean): Promise<MQTTResponse> {
     if (box_status){
-        return sendControlMessage(mqtt, box_id, "unlock");
+        return sendControlMessage(mqtt, box_id, 
+            "unlock");
     } else {
         return sendControlMessage(mqtt, box_id, "lock");
     } 

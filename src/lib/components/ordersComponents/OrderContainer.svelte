@@ -7,6 +7,7 @@
     let originalOrderName = order.order_name;
     let originalPassword = order.password;
     let originalCourier = order.courier_details;
+    let deliveredToggle = false
 
     const startEditing = () => {
         isEditing = true;
@@ -27,123 +28,151 @@
         editedPassword = originalPassword;
         editedCourier = originalCourier;
     };
+
+    const toggleButton = () => {
+        deliveredToggle = !deliveredToggle;
+    }
 </script>
 
-<div class="OrderContainer" class:delivered={order.status}>
-    {#if isEditing}
-        <label for="delivered-checkbox">
-            <input 
-                type="checkbox" 
-                id="delivered-checkbox"
-                checked={order.status} 
-                on:change={(e) => {
-                    order.status = e.currentTarget.checked;
-                    updateOrder(order);
-                }} 
-            />
-            Delivered?
-        </label>
-        <label for="order-name">
-            Order Name:
-            <input 
-                type="text" 
-                id="order-name"
-                bind:value={editedOrderName} 
-                placeholder="Order Name"
-            />
-        </label>
-        <label for="order-password">
-            Password:
-            <input 
-                type="text" 
-                id="order-password"
-                bind:value={editedPassword} 
-                placeholder="Password"
-            />
-        </label>
-        <label for="order-courier">
-            Courier contact details:
-            <input 
-                type="text" 
-                id="order-courier"
-                bind:value={editedCourier} 
-                placeholder="Password"
-            />
-        </label>
-    {:else}
-        <div>
-            <h2>Order Name:</h2>
-            <p>{order.order_name}</p>
-        </div>
-        <div>
-            <h2>Password:</h2>
-            <p>{order.password}</p>
-        </div>
-        <div>
-            <h2>Courier contact details:</h2>
-            <p>{order.courier_details}</p>
-        </div>
-        <label for="delivered-checkbox">
-            <input 
-                type="checkbox" 
-                id="delivered-checkbox"
-                checked={order.status} 
-                on:change={(e) => {
-                    order.status = e.currentTarget.checked;
-                    updateOrder(order);
-                }} 
-            />
-            Delivered?
-        </label>
-    {/if}
-        <button on:click={() => deleteOrder(order)}>Delete</button>
-    {#if isEditing}
-        <button on:click={confirmEdit}>Confirm</button>
-        <button on:click={cancelEdit}>Cancel</button>
-    {:else}
-        <button on:click={startEditing}>Update</button>
-    {/if}
+<div
+	class=" flex flex-row card variant-ghost-primary card-hover w-full p-5 space-y-2"
+	class:delivered={order.status}
+>
+	<div class="flex flex-col w-full">
+		<div class="flex flex-row justify-start">
+			<div class="flex flex-col mr-2 lg:mr-5">
+				<p class="py-2 font-bold">Order Name</p>
+				<p class="py-2 font-bold">Password</p>
+				<p class="py-2 font-bold">Courier Contact</p>
+			</div>
+
+			<div class="flex flex-col lg:flex-grow mr-2">
+				{#if isEditing}
+					<p class="py-1">
+						<input
+							class="input"
+							type="text"
+							bind:value={editedOrderName}
+							placeholder="Order Name"
+						/>
+					</p>
+					<p class="py-1">
+						<input class="input" type="text" bind:value={editedPassword} placeholder="Password" />
+					</p>
+					<p class="py-1">
+						<input
+							class="input"
+							type="text"
+							bind:value={editedCourier}
+							placeholder="Courier Contact Number"
+						/>
+					</p>
+				{:else}
+					<p class="py-2">{order.order_name}</p>
+					<p class="py-2">{order.password}</p>
+					<p class="py-2">{order.courier_details}</p>
+				{/if}
+			</div>
+		</div>
+
+		<div class="pb-2 flex flex-row justify-center">
+			{#if deliveredToggle}
+                <button type="button" class="btn variant-filled-primary  w-2/3 lg:w-1/3 deliverBut mt-2"
+                    on:click={() => {
+                        toggleButton();
+                        order.status = deliveredToggle;
+                        updateOrder(order);
+                    }} 
+                > Delivered
+                </button>
+            {:else}
+                <button type="button" class="btn variant-filled-primary w-2/3 lg:w-1/3 mt-2"
+                    on:click={() => {
+                        toggleButton();
+                        order.status = deliveredToggle;
+                        updateOrder(order);
+                    }} 
+                > Mark Delivered?
+                </button>
+            {/if}
+		</div>
+	</div>
+	<div class="flex flex-col w-1/5">
+		<button
+			type="button"
+			class="btn variant-filled-primary self-center my-2 w-full"
+			on:click={() => deleteOrder(order)}
+		> Delete
+		</button>
+
+		{#if isEditing}
+            <button
+                type="button"
+                class="btn variant-filled-primary w-full self-center deliverBut"
+                disabled
+            > Edit
+            </button>
+            <div class="flex lg:flex-row place-items-end mt-2">
+                <button 
+                    type="button" 
+                    class="btn variant-filled-primary w-1/2 text-xs lg:text-base mr-1 lg:mr-2" 
+                    on:click={cancelEdit}
+                >Cancel
+                </button>
+                <button 
+                    type="button" 
+                    class="btn variant-filled-primary w-1/2 text-xs lg:text-base" 
+                    on:click={confirmEdit}
+                >Confirm
+                </button>
+            </div>
+        {:else}
+            <button
+                type="button"
+                class="btn variant-filled-primary w-full self-center"
+                on:click={startEditing}
+            > Edit
+            </button>
+        {/if}
+	</div>
 </div>
 
 <style>
-    .OrderContainer {
-    display: flex;
-    flex-direction: column;
-    border: 2px solid #ccc; /* Adjust border width and color */
-    border-radius: 8px; /* Add border radius for rounded corners */
-    padding: 10px; /* Add padding to create space between content and border */
-    margin-bottom: 10px; /* Add margin to create space between Order containers */
-    }
-
-    .OrderContainer h2,
-    .OrderContainer p {
-    margin: 5px 0; /* Add margin between lines */
-    }
-
-
     button {
-        color: white; /* Change font color for buttons */
-        background-color: #808080; /* Gray background color */
-        border: none; /* Remove border */
-        padding: 8px 16px; /* Add padding for better visual appearance */
-        cursor: pointer; /* Add cursor pointer for better interaction */
-        border-radius: 4px; /* Add border radius for rounded corners */
+        border-radius: 4px; 
     }
+	button {
+		border-radius: 4px;
+	}
 
     /* Style buttons on hover */
     button:hover {
-        background-color: #606060; /* Darken the background color on hover */
+        background-color: #4d4b4b; /* Darken the background color on hover */
     }
+	/* Style buttons on hover */
+	button:hover {
+		background-color: #606060; /* Darken the background color on hover */
+	}
 
     .delivered {
         opacity: 0.5
     }
-    .delivered input[type="text"] {
-        text-decoration: line-through;
+
+    .deliverBut {
+        background-color: #4d4b4b;
     }
 
-    input[type="text"] {
-		color: blue; /* Change font color for input text and submit button */
+	.delivered {
+		opacity: 0.5;
 	}
 
+	.input {
+		padding: 5px 12px;
+		font-size: 14px;
+		line-height: 20px;
+		vertical-align: middle;
+		background-color: #ffffff;
+		border: 1px solid #e1e4e8;
+		border-radius: 6px;
+	}
 </style>
