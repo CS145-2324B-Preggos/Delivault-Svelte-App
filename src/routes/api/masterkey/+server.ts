@@ -1,4 +1,4 @@
-import { sendControlMessage, sendMasterkey } from "$lib/server/MQTT.js";
+import { sendMasterkey } from "$lib/server/MQTT.js";
 import { json } from "@sveltejs/kit";
 
 // publishing masterkey via supabase
