@@ -40,28 +40,23 @@ export async function initializeMQTTClient() {
     // Subscribe with QoS level 2
     client.subscribe('ident/+/out', { qos: 2 }, (err, granted) => {
         if (err) {
-        console.error('Subscription error:', err.message);
+            console.error('Subscription error:', err.message);
         } else {
-        console.log('Subscribed to:', granted?.map(grant => `${grant.topic} with QoS ${grant.qos}`).join(', '));
+            console.log('Subscribed to:', granted?.map(grant => `${grant.topic} with QoS ${grant.qos}`).join(', '));
         }
     });
 
     // Send initial message
     client.publish("sys/log", "Hello, world!", { qos: 2 }, (err) => {
-        if (err) {
-        console.error('Publish error:', err.message);
-        }
-    });
+            if (err) {
+            console.error('Publish error:', err.message);
+            }
+        });
     });
 
     client.on(
-    'error',
-    (mqtt_err) => error(500, mqtt_err.message)
-    )
-
-    client.on(
-    'message',
-    (topic: string, payload: Buffer) => onReceived(client, topic, payload)
+        'error',
+        (mqtt_err) => error(500, mqtt_err.message)
     )
 
     return client
