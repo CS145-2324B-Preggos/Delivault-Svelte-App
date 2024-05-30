@@ -6,12 +6,20 @@
 	import type { Order, OrderDBObj } from '$lib/classes/Order';
 	import { onMount } from 'svelte';
 	import { v4 as uuidv4 } from 'uuid';
-	import { AppShell } from '@skeletonlabs/skeleton';
+	import { AppShell, Toast, getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
 
 	export let data;
 
 	let { orders, supabase } = data;
 	let showAddOrderScreen = false;
+
+	const toastStore = getToastStore();
+	const t: ToastSettings = {
+		message: 'Please press (Generate Code) button again.',
+		timeout: 20000,
+		hoverable: true,
+		background: 'variant-filled-warning',
+	};
 
 	const toggleAddOrderScreen = () => {
 		showAddOrderScreen = !showAddOrderScreen;
@@ -76,6 +84,12 @@
 				status: false,
 				hash_passcode: null
 			});
+
+			if (error) {
+				toastStore.trigger(t);
+         		throw error;
+			}
+
 			console.log(e.detail);
 			console.log('order id: ', newOrderId);
 			showAddOrderScreen = false;
@@ -107,7 +121,7 @@
 			</div>
 	</svelte:fragment>
 
-	<!-- <div class="border-solid border-8 w-max"> -->
+
 		{#each orders as order (order.order_id)}
 			<div class="mx-2">
 				<OrderContainer {order} {updateOrder} {deleteOrder} />
@@ -120,7 +134,7 @@
 				</div>
 			</div>
 		{/each}
-	<!-- </div> -->
+
 	<svelte:fragment slot="footer">
 		<button type="button" class="btn variant-filled-primary content-center my-5" on:click={toggleAddOrderScreen}>
 			Add orders

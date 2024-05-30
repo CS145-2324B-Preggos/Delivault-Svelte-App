@@ -1,7 +1,7 @@
 // TODO: add POST handler to toggle lock invoking MQTT methods from $lib/server/MQTT.ts
 
 // import { Box } from "$lib/classes/Box";
-import { sendControlMessage } from "$lib/server/MQTT.js";
+import { initializeMQTTClient, sendControlMessage } from "$lib/server/MQTT.js";
 import { json } from "@sveltejs/kit";
 
 // FOR TESTING PURPOSES ONLY
@@ -36,6 +36,8 @@ export async function GET({ url, locals }) {
 
 export async function PATCH({ request, locals } ) {
 	// this now should send a signal to the broker to lock and unlock, and should update the box in supabase
+    const mqttClient = await initializeMQTTClient()
+    
     try {
         const boxResponse = await request.json();
         const box = boxResponse[0];
@@ -43,7 +45,7 @@ export async function PATCH({ request, locals } ) {
 
         // // Send control message via MQTT
         const action = box.locked ? "lock" : "unlock";
-        const mqTTResponse = await sendControlMessage(locals.mqttClient, box.box_id, action);
+        const mqTTResponse = await sendControlMessage(mqttClient, box.box_id, action);
 
         if (!mqTTResponse.success) {
             throw new Error(mqTTResponse.error);
