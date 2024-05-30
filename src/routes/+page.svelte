@@ -4,7 +4,10 @@
 	export let loggedInUID: null | string = null;
 	export let boxExist = true;
     export let boxID:string, registeredBox;
-	export let supabase;
+
+	export let data;
+
+	let { supabase } = data;	
 	export let loaded = false;
 
 	let masterkeyToggle = false;
