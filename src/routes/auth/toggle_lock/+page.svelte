@@ -141,6 +141,7 @@
 			}, 1000);
 
 		} else {
+			isLoading = false;
 			await fetchUserBoxEntry('1000000000000000');
 			console.log(updateResponse.msg, 'lock is still', isLocked);
 		}

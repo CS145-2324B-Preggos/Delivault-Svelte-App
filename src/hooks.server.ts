@@ -18,6 +18,7 @@ const options: IClientOptions = {
   password: MQTT_PASSWORD,
   keepalive: 0,
   ca: crt,
+  clientId: `server_${Math.random().toString(16).slice(2)}` // Ensure a unique client ID
 }
 
 // Initialize and connect the mqtt client

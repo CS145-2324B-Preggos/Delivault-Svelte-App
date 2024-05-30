@@ -69,11 +69,12 @@
 		try {
 			const { data, error } = await supabase.from('orders').insert({
 				order_id: newOrderId,
-				box_id: 0, // for now
+				box_id: 1000000000000000, // for now
 				order_name: orderDetails.order_name,
 				password: orderDetails.password,
 				courier_details: orderDetails.courier_contact_details,
-				status: false
+				status: false,
+				hash_passcode: null
 			});
 			console.log(e.detail);
 			console.log('order id: ', newOrderId);
