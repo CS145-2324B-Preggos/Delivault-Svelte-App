@@ -1,57 +1,9 @@
 import { createServerClient } from '@supabase/ssr'
-import { error, type Handle, redirect } from '@sveltejs/kit'
+import { type Handle, redirect } from '@sveltejs/kit'
 import { sequence } from '@sveltejs/kit/hooks'
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public'
-import { MQTT_BROKER_URL, MQTT_BROKER_PRT, MQTT_USERNAME, MQTT_PASSWORD } from '$env/static/private'
-import mqtt, { type IClientOptions } from 'mqtt'
-import { onReceived } from '$lib/server/MQTT'
 
 // On server startup, set up the mqtt client
-
-const crt = await fetch("https://assets.emqx.com/data/emqxsl-ca.crt").then(async (response) => await response.blob().then( (blob) => blob.text() ))
-
-const options: IClientOptions = {
-  host: MQTT_BROKER_URL,
-  port: parseInt(MQTT_BROKER_PRT),
-  protocol: 'mqtts',
-  username: MQTT_USERNAME,
-  password: MQTT_PASSWORD,
-  keepalive: 0,
-  ca: crt,
-}
-
-// Initialize and connect the mqtt client
-const client = mqtt.connect(options);
-
-client.on('connect', () => {
-  console.log("Connected the server to the broker!");
-
-  // Subscribe with QoS level 2
-  client.subscribe('ident/+/out', { qos: 2 }, (err, granted) => {
-    if (err) {
-      console.error('Subscription error:', err.message);
-    } else {
-      console.log('Subscribed to:', granted.map(grant => `${grant.topic} with QoS ${grant.qos}`).join(', '));
-    }
-  });
-
-  // Send initial message
-  client.publish("sys/log", "Hello, world!", { qos: 2 }, (err) => {
-    if (err) {
-      console.error('Publish error:', err.message);
-    }
-  });
-});
-
-client.on(
-  'error',
-  (mqtt_err) => error(500, mqtt_err.message)
-)
-
-client.on(
-  'message',
-  (topic: string, payload: Buffer) => onReceived(client, topic, payload)
-)
 
 // Before the server is killed, disconnect the client 
 

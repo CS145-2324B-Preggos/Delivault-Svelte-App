@@ -2,7 +2,9 @@
 
 import { error } from "@sveltejs/kit";
 import type { MqttClient, IClientOptions, IClientPublishOptions } from "mqtt";
+import mqtt from "mqtt";
 import { EventEmitter } from "node:events";
+import { MQTT_BROKER_URL, MQTT_BROKER_PRT, MQTT_USERNAME, MQTT_PASSWORD } from '$env/static/private'
 
 export enum HardwareState {
     locked,
@@ -40,7 +42,7 @@ export async function initializeMQTTClient() {
         if (err) {
         console.error('Subscription error:', err.message);
         } else {
-        console.log('Subscribed to:', granted.map(grant => `${grant.topic} with QoS ${grant.qos}`).join(', '));
+        console.log('Subscribed to:', granted?.map(grant => `${grant.topic} with QoS ${grant.qos}`).join(', '));
         }
     });
 
