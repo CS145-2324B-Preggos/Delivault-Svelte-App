@@ -136,7 +136,7 @@
 	slotFooter="flex flex-row justify-center"
 >
 	<svelte:fragment slot="header">
-		<div class="place-self-center"><strong class="text-xl uppercase pt-5">My orders</strong></div>
+		<div class="place-self-center"><strong class="text-2xl  uppercase pt-5">My orders</strong></div>
 		<div>
 			<button
 				type="button"
