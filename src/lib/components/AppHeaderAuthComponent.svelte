@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
     
-    import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
     import { popup } from '@skeletonlabs/skeleton';
     import type { PopupSettings } from '@skeletonlabs/skeleton';
 			
