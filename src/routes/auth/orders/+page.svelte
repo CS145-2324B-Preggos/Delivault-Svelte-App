@@ -107,7 +107,7 @@
 			</div>
 	</svelte:fragment>
 
-	<!-- <div class="border-solid border-8 w-max"> -->
+
 		{#each orders as order (order.order_id)}
 			<div class="mx-2">
 				<OrderContainer {order} {updateOrder} {deleteOrder} />
@@ -120,7 +120,7 @@
 				</div>
 			</div>
 		{/each}
-	<!-- </div> -->
+
 	<svelte:fragment slot="footer">
 		<button type="button" class="btn variant-filled-primary content-center my-5" on:click={toggleAddOrderScreen}>
 			Add orders
