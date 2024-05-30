@@ -22,11 +22,11 @@
         <svelte:fragment slot="lead"><Icon icon="ic:round-home" class="text-3xl"/></svelte:fragment>
         <span>Home</span>
     </AppRailAnchor>
-    <AppRailAnchor href="/auth/toggle_lock" selected={$page.url.pathname === '/auth/toggle_lock'} title="Lock" on:click={drawerClose}>
+    <AppRailAnchor href="/private/toggle_lock" selected={$page.url.pathname === '/private/toggle_lock'} title="Lock" on:click={drawerClose}>
         <svelte:fragment slot="lead"><Icon icon="mingcute:lock-fill" class="text-3xl"/></svelte:fragment>
         <span>Lock</span>
     </AppRailAnchor>
-    <AppRailAnchor href="/auth/orders" selected={$page.url.pathname === '/auth/orders'} title="Home" on:click={drawerClose}>
+    <AppRailAnchor href="/private/orders" selected={$page.url.pathname === '/private/orders'} title="Home" on:click={drawerClose}>
         <svelte:fragment slot="lead"><Icon icon="mingcute:list-check-3-fill" class="text-3xl"/></svelte:fragment>
         <span>Orders</span>
     </AppRailAnchor>
