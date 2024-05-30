@@ -203,6 +203,7 @@ function delay(ms: number) {
 async function receivedPasscode(mqtt: MqttClient, message: string, box_id: string) {
 
     const passcode = (/^pass (\d*)$/.exec(message) ?? [null, null])[1];
+    console.log("received passcode:", passcode);
 
     // verify the passcode, otherwise true for now
     const isPasscodeCorrect = await verifyPasscode(passcode);
