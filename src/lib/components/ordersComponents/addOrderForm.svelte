@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
+	import { getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
 
 	let dispatch = createEventDispatcher();
 
@@ -11,7 +12,13 @@
 	let errorMessage: string = '';
 	let showErrorMessage: boolean = false;
 
+
+	let waitToast = () => {
+		dispatch('waitToast');
+	};
+
 	let handleSubmit = () => {
+		isDisabled = true;
 		// validation code
 		if (!orderName || !courierContactDetails || !passcode) {
 			errorMessage = 'Please fill out all fields before submitting.';
@@ -40,7 +47,6 @@
 			result += characters.charAt(Math.floor(Math.random() * characters.length));
 		}
 		passcode = result;
-		isDisabled = false;
 		hideErrorMessage();
 	};
 
@@ -76,11 +82,7 @@
 		/>
 		<label for="passcode" class="mt-2 text-white">Passcode</label>
 		<div class="passcodeSegment">
-			<button
-				on:click|preventDefault={generateCode}
-				disabled={isDisabled}
-				class=" bg-primary-500 text-white p-3 rounded-full"
-			>
+			<button on:click|preventDefault={generateCode}>
 				Generate Code
 			</button>
 			<input
@@ -100,14 +102,16 @@
 					class="bg-secondary-500 text-white p-3 w-20 rounded-full border-white border-solid border-2">Cancel</button
 				>
 			</div>
-			<div class="submitButton">
-				<input
-					type="submit"
-					value="Submit"
-					class="bg-primary-500 text-white p-3 w-20 rounded-full"
-				/>
-			</div>
-		</div>
+			{#if isDisabled}
+			<div>
+				<button type="button" on:click={waitToast}>Submit</button>
+			  </div>
+			{:else}
+				<div class="submitButton">
+					<input type="submit" value="Submit" disabled={isDisabled}/>
+				</div>
+			{/if}
+		  </div>
 	</form>
 	{#if showErrorMessage}
 		<p class="errorMessage">{errorMessage}</p>
