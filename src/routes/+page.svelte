@@ -84,7 +84,7 @@
 							</button>
 							<button 
 								type="button" 
-								class="btn variant-filled-primary mt-2 text-xs lg:text-base "
+								class="btn variant-filled-secondary mt-2 text-xs lg:text-base "
 								on:click={() => toggleKeyEdit()}
 							>Cancel
 							</button>

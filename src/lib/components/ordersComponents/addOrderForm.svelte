@@ -60,7 +60,7 @@
 </script>
 
 <div class="display: flex flex-col p-6 bg-secondary-500 rounded-xl">
-	<h4 class="self-center font-bold text-xl text-primary-500">Add Order</h4>
+	<h4 class="self-center font-bold text-xl text-primary-500">ADD ORDER</h4>
 	<form on:submit|preventDefault={handleSubmit} class="form">
 		<label for="orderName" class="mt-2 text-white">Order Name</label>
 		<input
