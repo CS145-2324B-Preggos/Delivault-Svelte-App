@@ -100,7 +100,7 @@
 	<div class="flex flex-col w-1/5">
 		<button
 			type="button"
-			class="btn variant-filled-primary self-center my-2 w-full"
+			class="btn variant-filled-secondary self-center my-2 w-full"
 			on:click={() => deleteOrder(order)}
 		> Delete
 		</button>
