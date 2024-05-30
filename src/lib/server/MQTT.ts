@@ -63,6 +63,8 @@ export async function initializeMQTTClient() {
     'message',
     (topic: string, payload: Buffer) => onReceived(client, topic, payload)
     )
+
+    return client
 }
 
 // TODO: implement this based on the obvious integrated eventEmitter solution + basti's fucking article https://dev.to/somedood/promises-and-events-some-pitfalls-and-workarounds-elp
