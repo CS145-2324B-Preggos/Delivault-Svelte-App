@@ -97,7 +97,8 @@ self.addEventListener(
 				{
 					lang: 'en',
 					body: notificationBody,
-					vibrate: [500, 500, 500]
+					vibrate: [500, 500, 500],
+					icon: 'favicon.png'
 				}
 			).then(console.log("Notification sent!")
 			)
