@@ -52,6 +52,10 @@
     };
 </script>
 
+<svelte:head>
+	<title>Home Page</title>
+</svelte:head>
+
 <AppShell regionPage="flex flex-col pt-3 p-20 place-self-center">
 	<h2 class="h2 text-center mb-7">Welcome to DeliVault!</h2>
 	{#key loggedInUID}
