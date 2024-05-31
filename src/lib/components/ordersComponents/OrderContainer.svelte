@@ -1,37 +1,42 @@
 <script>
-    export let order, updateOrder, deleteOrder;
-    let isEditing = false;
-    let editedOrderName = order.order_name;
-    let editedPassword = order.password;
-    let editedCourier = order.courier_details;
-    let originalOrderName = order.order_name;
-    let originalPassword = order.password;
-    let originalCourier = order.courier_details;
-    let deliveredToggle = false
+	export let order, updateOrder, deleteOrder;
+	let isEditing = false;
+	let editedOrderName = order.order_name;
+	let editedPassword = order.password;
+	let editedCourier = order.courier_details;
+	let originalOrderName = order.order_name;
+	let originalPassword = order.password;
+	let originalCourier = order.courier_details;
+	let deliveredToggle = order.status;
+	let isDeleting = false;
 
-    const startEditing = () => {
-        isEditing = true;
-    };
+	const startEditing = () => {
+		isEditing = true;
+	};
 
-    const confirmEdit = () => {
-        isEditing = false;
-        order.order_name = editedOrderName;
-        order.password = editedPassword;
-        order.courier_details = editedCourier;
-        updateOrder(order);
-    };
+	const confirmEdit = () => {
+		isEditing = false;
+		order.order_name = editedOrderName;
+		order.password = editedPassword;
+		order.courier_details = editedCourier;
+		updateOrder(order);
+	};
 
-    const cancelEdit = () => {
-        isEditing = false;
-        // Reset edited values to original values
-        editedOrderName = originalOrderName;
-        editedPassword = originalPassword;
-        editedCourier = originalCourier;
-    };
+	const cancelEdit = () => {
+		isEditing = false;
+		// Reset edited values to original values
+		editedOrderName = originalOrderName;
+		editedPassword = originalPassword;
+		editedCourier = originalCourier;
+	};
 
-    const toggleButton = () => {
-        deliveredToggle = !deliveredToggle;
-    }
+	const toggleButton = () => {
+		deliveredToggle = !deliveredToggle;
+	};
+
+	const toggleDeleting = () => {
+		isDeleting = !isDeleting;
+	};
 </script>
 
 <div
@@ -77,90 +82,119 @@
 
 		<div class="pb-2 flex flex-row justify-center">
 			{#if deliveredToggle}
-                <button type="button" class="btn variant-filled-primary  w-2/3 lg:w-1/3 deliverBut mt-2"
-                    on:click={() => {
-                        toggleButton();
-                        order.status = deliveredToggle;
-                        updateOrder(order);
-                    }} 
-                > Delivered
-                </button>
-            {:else}
-                <button type="button" class="btn variant-filled-primary w-2/3 lg:w-1/3 mt-2"
-                    on:click={() => {
-                        toggleButton();
-                        order.status = deliveredToggle;
-                        updateOrder(order);
-                    }} 
-                > Mark Delivered?
-                </button>
-            {/if}
+				<button
+					type="button"
+					class="btn variant-filled-primary w-2/3 lg:w-1/3 deliverBut mt-2"
+					on:click={() => {
+						toggleButton();
+						order.status = deliveredToggle;
+						updateOrder(order);
+					}}
+				>
+					Delivered
+				</button>
+			{:else}
+				<button
+					type="button"
+					class="btn variant-filled-primary w-2/3 lg:w-1/3 mt-2"
+					on:click={() => {
+						toggleButton();
+						order.status = deliveredToggle;
+						updateOrder(order);
+					}}
+				>
+					Mark Delivered?
+				</button>
+			{/if}
 		</div>
 	</div>
-	<div class="flex flex-col w-1/5">
-		<button
-			type="button"
-			class="btn variant-filled-secondary self-center my-2 w-full"
-			on:click={() => deleteOrder(order)}
-		> Delete
-		</button>
+	<div class="flex flex-col w-1/5 justify-center">
+		{#if isDeleting}
+			<button type="button" class="btn variant-filled-secondary self-center mt-2 w-full" disabled>
+				Delete
+			</button>
+			<div class="flex lg:flex-row place-items-end mt-2">
+				<button
+					type="button"
+					class="btn variant-filled-secondary w-1/2 text-xs lg:text-base mr-1 lg:mr-2"
+					on:click={() => toggleDeleting()}
+					>Cancel
+				</button>
+				<button
+					type="button"
+					class="btn variant-filled-secondary w-1/2 text-xs lg:text-base"
+					on:click={deleteOrder(order)}
+					>Confirm
+				</button>
+			</div>
+		{:else}
+			<button
+				type="button"
+				class="btn variant-filled-secondary self-center mt-2 w-full"
+				on:click={() => toggleDeleting()}
+			>
+				Delete
+			</button>
+		{/if}
 
 		{#if isEditing}
-            <button
-                type="button"
-                class="btn variant-filled-primary w-full self-center deliverBut"
-                disabled
-            > Edit
-            </button>
-            <div class="flex lg:flex-row place-items-end mt-2">
-                <button 
-                    type="button" 
-                    class="btn variant-filled-primary w-1/2 text-xs lg:text-base mr-1 lg:mr-2" 
-                    on:click={cancelEdit}
-                >Cancel
-                </button>
-                <button 
-                    type="button" 
-                    class="btn variant-filled-primary w-1/2 text-xs lg:text-base" 
-                    on:click={confirmEdit}
-                >Confirm
-                </button>
-            </div>
-        {:else}
-            <button
-                type="button"
-                class="btn variant-filled-primary w-full self-center"
-                on:click={startEditing}
-            > Edit
-            </button>
-        {/if}
+			<button
+				type="button"
+				class="btn variant-filled-primary w-full self-center deliverBut mt-2"
+				disabled
+			>
+				Edit
+			</button>
+			<div class="flex lg:flex-row place-items-end mt-2">
+				<button
+					type="button"
+					class="btn variant-filled-primary w-1/2 text-xs lg:text-base mr-1 lg:mr-2"
+					on:click={cancelEdit}
+					>Cancel
+				</button>
+				<button
+					type="button"
+					class="btn variant-filled-primary w-1/2 text-xs lg:text-base"
+					on:click={confirmEdit}
+					>Confirm
+				</button>
+			</div>
+		{:else}
+			<button
+				type="button"
+				class="btn variant-filled-primary w-full self-center mt-2"
+				on:click={startEditing}
+			>
+				Edit
+			</button>
+		{/if}
 	</div>
 </div>
 
 <style>
-    button {
-        border-radius: 4px; 
-    }
+	button {
+		border-radius: 4px;
+	}
 	button {
 		border-radius: 4px;
 	}
 
-    /* Style buttons on hover */
-    button:hover {
-        background-color: #4d4b4b; /* Darken the background color on hover */
-    }
+	/* Style buttons on hover */
+	button:hover {
+		background-color: #4d4b4b; /* Darken the background color on hover */
+	}
 	/* Style buttons on hover */
 	button:hover {
 		background-color: #606060; /* Darken the background color on hover */
 	}
 
-    .delivered {
-        opacity: 0.5
-    }
+	.delivered {
+		opacity: 0.5;
+	}
 
-    .deliverBut {
-        background-color: #4d4b4b;
-    }
+	.deliverBut {
+		background-color: #4d4b4b;
+	}
 
 	.delivered {
 		opacity: 0.5;
