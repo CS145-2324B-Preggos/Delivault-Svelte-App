@@ -148,9 +148,9 @@
 				</button>
 				<nav>
 					<ul>
-						<a href="/"><strong class="text-xl uppercase">
-							<span class="text-primary-500">Deli</span>vault
-						</strong></a>
+						<a href="/"><div class="text-2xl tracking-wide">
+							Deli<span class="text-primary-500">Vault</span>
+						</div></a>
 					</ul>	
 				</nav>
 			</svelte:fragment>
