@@ -159,6 +159,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Toggle Lock</title>
+</svelte:head>
+
 {#if isLoading}
 	<LoadingScreen {isLocked} {isFetching} />
 {/if}
