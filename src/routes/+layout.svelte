@@ -149,7 +149,7 @@
 				<nav>
 					<ul>
 						<a href="/"><strong class="text-xl uppercase">
-							<span class="text-primary-500">Deli</span>vault
+							Deli<span class="text-primary-500">vault</span>
 						</strong></a>
 					</ul>	
 				</nav>
