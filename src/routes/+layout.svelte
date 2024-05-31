@@ -148,7 +148,7 @@
 				</button>
 				<nav>
 					<ul>
-						<a href="/"><strong class="text-xl uppercase">
+						<a href="/"><strong class="h3 uppercase">
 							<span class="text-primary-500">Deli</span>vault
 						</strong></a>
 					</ul>	
