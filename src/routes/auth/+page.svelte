@@ -14,6 +14,10 @@
 
 </script>
 
+<svelte:head>
+    <title>Sign In</title>
+</svelte:head>
+
 <div class="container h-full flex justify-center items-center mx-auto prose-invert">
     <div class="container w-auto p-10 mx-auto flex flex-col items-center bg-surface-900/30 rounded-xl">
         <h3 class="h3">Welcome to DeliVault.</h3>

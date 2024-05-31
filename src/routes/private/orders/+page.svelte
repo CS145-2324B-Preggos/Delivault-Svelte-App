@@ -118,6 +118,10 @@
 	};
 </script>
 
+<svelte:head>
+	<title>Orders</title>
+</svelte:head>
+
 {#if isLoading}
 	<LoadingScreen {isFetching} />
 {/if}
