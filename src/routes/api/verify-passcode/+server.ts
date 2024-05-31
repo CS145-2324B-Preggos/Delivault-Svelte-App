@@ -1,5 +1,6 @@
 import { sendNotification } from '$lib/server/Webpush.js'
 import { error, json } from '@sveltejs/kit'
+import { sha256 } from 'js-sha256'
 
 // check an 8-character passcode to see if it is valid
 export async function POST({ request, locals: { supabase } }) {
@@ -11,8 +12,8 @@ export async function POST({ request, locals: { supabase } }) {
                         }[] = await request.json()
     const requestObject = requestArray[0]
     
-    // preprocess requestObject.hash_passcode, truncate to first 16 bytes
-    requestObject.hash_passcode = requestObject.hash_passcode.substring(0, 16)
+    // preprocess requestObject.hash_passcode, hash it using sha256
+    requestObject.hash_passcode = sha256(requestObject.hash_passcode)
     
     // console.log(requestObject)
     const {data, error: pgError} = await supabase
