@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { AppShell } from '@skeletonlabs/skeleton';
+	import { AppShell, getToastStore, type ToastSettings  } from '@skeletonlabs/skeleton';
 
 	export let loggedInUID: null | string = null;
 	export let boxExist = true;
@@ -13,6 +13,15 @@
 	let masterkeyToggle = false;
 	let originalMasterkey:string;
 	let newMasterkey:string;
+
+	
+	const toastStore = getToastStore();
+	const c: ToastSettings = {
+		message: "Masterkey changed.",
+		timeout: 10000,
+		hoverable: true,
+	};
+
 
 	const editMasterkey = async () => {
 		masterkeyToggle = false;
@@ -32,6 +41,12 @@
 		const publishResponse = await publishMasterKey.json();
 		if (publishResponse.success) {
 			originalMasterkey = newMasterkey;
+			toastStore.trigger(c);
+		}
+		else {
+			c.message = "Could not set Masterkey."
+			c.background = "variant-filled-warning"
+			toastStore.trigger(c);
 		}
 		
     };
